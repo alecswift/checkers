@@ -23,21 +23,25 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
-    for x_coord, y_coord in product(range(0, 364, 121), range(0, 364, 121)):
-        screen.blit(board_surface, (x_coord, y_coord))
-    for pos, val in game.board.items():
-        if val not in (None, 'empty'):
-            if val.color == 'black':
-                screen.blit(checkers, (pos.real * 60.5, pos.imag * 60.5), (0, 60, 60, 60))
-            else:
-                screen.blit(checkers, (pos.real * 60.5, pos.imag * 60.5), (60, 60, 60, 60))
+    # Draw elements
     # screen.blit(checkers, (0,0), (0, 60, 60, 60)) # black man
     # screen.blit(checkers, (6*60.5, 5*60.5), (0, 0, 60, 60)) # black king
     # screen.blit(checkers, (60.5,60.5), (60, 60, 60, 60)) # white man
     # screen.blit(checkers, (60.5,0), (60, 0, 60, 60)) # white king
+    for x_coord, y_coord in product(range(0, 364, 121), range(0, 364, 121)):
+        screen.blit(board_surface, (x_coord, y_coord))
+    for pos, val in game.board.items():
+        if val in (None, 'empty'):
+            continue
+        if val.color == 'black':
+            screen.blit(checkers, (pos.real * 60.5, pos.imag * 60.5), (0, 60, 60, 60))
+        else:
+            screen.blit(checkers, (pos.real * 60.5, pos.imag * 60.5), (60, 60, 60, 60))
+    # User input
     # possibly rect collisions for landing on specific squares?
     # pygame.mouse position collides with a players piece plus press to pick up piece
-    # Draw elements
+
+
     # update everything
     # move sprite from one square to another square
     # correlate dictionary of pieces to the display
