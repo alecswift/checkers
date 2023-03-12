@@ -1,7 +1,7 @@
 import pygame
 from sys import exit
 from itertools import product
-from checkers import Board, Player
+from checkers import Board, Player, Piece
 
 pygame.init()
 screen = pygame.display.set_mode((484, 484))
@@ -9,28 +9,36 @@ pygame.display.set_caption("Checkers")
 clock = pygame.time.Clock()
 
 board = Board()
-player_1 = Player('black', board)
-player_2 = Player('white', board)
+player_1 = Player("black", board)
+player_2 = Player("white", board)
+
 
 class CheckerSprite(pygame.sprite.Sprite):
     """moves a clenched fist on the screen, following the mouse"""
 
-    def __init__(self):
-        super().__init__()
-        
+    # factor to multiply x and y of the piece, so it is displayed properly on the screen
+    COORD_FACTOR = 60.5
 
+    def __init__(self, piece):
+        super().__init__()
+        self._piece = piece
+        image_path = f'graphics/{piece.color}_piece.png'
+        self.image = pygame.image.load(image_path).convert_alpha()
+        x_coord, y_coord = int(piece.pos.real), int(piece.pos.imag)
+        screen_pos = (x_coord * self.COORD_FACTOR, y_coord * self.COORD_FACTOR)
+        self.rect = self.image.get_rect(topleft=(screen_pos))
+
+    # https://stackoverflow.com/questions/16825645/how-to-make-a-sprite-follow-your-mouse-cursor-using-pygame
     def update(self):
         "move the fist based on the mouse position"
         pos = pygame.mouse.get_pos()
-        self.rect.midtop = pos
-        if self.pressed:
-            self.rect.center(5, 10)
+        self.rect.center = pos
 
 
-board_surface = pygame.image.load('graphics/chessboard2.png').convert_alpha()
-black_piece = pygame.image.load('graphics/.png').convert_alpha()
+board_surface = pygame.image.load("graphics/chessboard2.png").convert_alpha()
 # correlate piece position tuples with piece position multiply x and y by 60.5
 # 6,5 -> 6*60.5, 5*60.5
+checkers = pygame.sprite.Group()
 
 while True:
     for event in pygame.event.get():
@@ -44,18 +52,19 @@ while True:
     # screen.blit(checkers, (60.5,0), (60, 0, 60, 60)) # white king
     for x_coord, y_coord in product(range(0, 364, 121), range(0, 364, 121)):
         screen.blit(board_surface, (x_coord, y_coord))
-    for pos, val in board.board.items():
-        if val in (None, 'empty'):
+    for pos, piece in board.board.items():
+        if piece in (None, "empty"):
             continue
-        if val.color == 'black':
-            screen.blit(checkers, (pos.real * 60.5, pos.imag * 60.5), (0, 60, 60, 60))
+        # maybe have black and white in seperate groups for interactions (capturing)?
         else:
-            screen.blit(checkers, (pos.real * 60.5, pos.imag * 60.5), (60, 60, 60, 60))
+            checker = CheckerSprite(piece)
+            checkers.add(CheckerSprite(piece))
+    checkers.draw(screen)
+
     # User input
-    
+
     # possibly rect collisions for landing on specific squares?
     # pygame.mouse position collides with a players piece plus press to pick up piece
-
 
     # update everything
     # move sprite from one square to another square
