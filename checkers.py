@@ -42,6 +42,10 @@ class Checkers:
                 self._board[coord] = Piece(coord, "black")
 
     def valid_paths(self, player: Player) -> list[Path]:
+        """
+        Returns all possible paths that a given player can take with
+        their current pieces
+        """
         paths = []
         for piece in player.pieces:
             forward_left = Direction.FORWARD_LEFT.move(piece.pos, piece.color)
@@ -54,7 +58,10 @@ class Checkers:
     def handle_moves(
         self, curr_path: Path, piece: Piece, first_move: bool, paths: list[Path]
     ) -> None:
-
+        """
+        Recursive function that builds all possible paths from the given first
+        two moves in curr_path and adds each path to the paths list
+        """
         *rest, curr_pos, next_pos = curr_path
         next_val = self._board.get(next_pos)
         opp_color = "black" if piece.color == "white" else "white"
@@ -73,8 +80,8 @@ class Checkers:
             if self._board.get(jump) == "empty":
                 forward_left = Direction.FORWARD_LEFT.move(jump, piece.color)
                 forward_right = Direction.FORWARD_RIGHT.move(jump, piece.color)
-                left_path = *rest, curr_pos, next_pos, jump, forward_left
-                right_path = *rest, curr_pos, next_pos, jump, forward_right
+                left_path = *curr_path, jump, forward_left
+                right_path = *curr_path, jump, forward_right
                 first_move = False
                 self.handle_moves(left_path, piece, first_move, paths)
                 self.handle_moves(right_path, piece, first_move, paths)
