@@ -1,16 +1,30 @@
 import pygame
 from sys import exit
 from itertools import product
-from checkers import Checkers, Player
+from checkers import Board, Player
 
 pygame.init()
 screen = pygame.display.set_mode((484, 484))
 pygame.display.set_caption("Checkers")
 clock = pygame.time.Clock()
 
-game = Checkers()
-player_1 = Player("black", game)
-player_2 = Player("white", game)
+board = Board()
+player_1 = Player('black', board)
+player_2 = Player('white', board)
+
+class CheckerSprite(pygame.sprite.Sprite):
+    """moves a clenched fist on the screen, following the mouse"""
+
+    def __init__(self):
+        super().__init__()
+        
+
+    def update(self):
+        "move the fist based on the mouse position"
+        pos = pygame.mouse.get_pos()
+        self.rect.midtop = pos
+        if self.pressed:
+            self.rect.center(5, 10)
 
 
 board_surface = pygame.image.load('graphics/chessboard2.png').convert_alpha()
@@ -30,7 +44,7 @@ while True:
     # screen.blit(checkers, (60.5,0), (60, 0, 60, 60)) # white king
     for x_coord, y_coord in product(range(0, 364, 121), range(0, 364, 121)):
         screen.blit(board_surface, (x_coord, y_coord))
-    for pos, val in game.board.items():
+    for pos, val in board.board.items():
         if val in (None, 'empty'):
             continue
         if val.color == 'black':
@@ -38,6 +52,7 @@ while True:
         else:
             screen.blit(checkers, (pos.real * 60.5, pos.imag * 60.5), (60, 60, 60, 60))
     # User input
+    
     # possibly rect collisions for landing on specific squares?
     # pygame.mouse position collides with a players piece plus press to pick up piece
 
