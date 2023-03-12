@@ -1,6 +1,6 @@
 from os import system
 from time import sleep
-from CheckersGame import Checkers, InvalidPlayer, InvalidSquare, OutofTurn
+from checkers import Checkers, InvalidPlayer, InvalidSquare, OutofTurn
 
 def play():
     game = Checkers()
