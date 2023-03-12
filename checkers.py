@@ -88,7 +88,7 @@ class Player:
     """
 
     def __init__(self, checker_color: str, board: Board):
-        self._checker_color = checker_color
+        self._color = checker_color
         self._board = board
         self._pieces: list[Piece] = []
         self.init_pieces()
@@ -97,14 +97,14 @@ class Player:
     def init_pieces(self) -> None:
         """Adds the players pieces of the appropriate color to the pieces data member"""
         for piece in self.board.values():
-            if piece not in (None, "empty"):
-                if self._checker_color == piece.color:
-                    self._pieces.append(piece)
+            is_player_piece = piece not in (None, "empty") and self._color == piece.color
+            if is_player_piece:
+                self._pieces.append(piece)
 
     @property
     def pieces(self) -> list[Piece]:
         return self._pieces
-    
+
     @property
     def board(self) -> dict:
         return self._board.board
@@ -116,7 +116,7 @@ class Player:
         the player has captured
         """
         return self._captured_pieces_count
-    
+
     def valid_paths(self) -> list[Path]:
         """
         Returns all possible paths that a given player can take with
@@ -131,7 +131,7 @@ class Player:
             # rather than if chain send each direction to a function
             self.handle_moves((pos, forward_left), piece, True, paths)
             self.handle_moves((pos, forward_right), piece, True, paths)
-            if piece.rank == 'king':
+            if piece.rank == "king":
                 pass
         return paths
 
