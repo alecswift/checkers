@@ -3,18 +3,25 @@ from unittest import TestCase
 from CheckersGame import Checkers, Player
 
 
-class CheckersTester(TestCase):
+class TestCheckers(TestCase):
     """Tests for the CheckersGame module"""
 
     def setUp(self):
         self.checkers = Checkers()
+        self.player_1 = Player("black", self.checkers)
 
-    def test_checkers_create_player_method(self):
-        """Test the Checkers class create player method"""
-        create_player_return = self.checkers.create_player("Jiminy Cricket", "Black")
-        self.assertIsInstance(create_player_return, Player)
-        player_in_dict = self.checkers.get_players()["Jiminy Cricket"]
-        self.assertEqual(player_in_dict, create_player_return)
+    def test_valid_path_method_with_initial_board_state(self) -> None:
+        expected = [
+            (5j, 1 + 4j),
+            (2 + 5j, 1 + 4j),
+            (2 + 5j, 3 + 4j),
+            (4 + 5j, 3 + 4j),
+            (4 + 5j, 5 + 4j),
+            (6 + 5j, 5 + 4j),
+            (6 + 5j, 7 + 4j),
+        ]
+        actual_output = self.checkers.valid_paths(self.player_1)
+        self.assertEqual(expected, actual_output)
 
 
 if __name__ == "__main__":
