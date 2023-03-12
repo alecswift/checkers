@@ -4,11 +4,7 @@ from itertools import product
 
 
 def main():
-    game = Checkers()
-    print(str(game))
-    player_1 = Player("black", game)
-    paths = game.valid_paths(player_1)
-    print(paths)
+    pass
 
 
 Pos = complex
@@ -100,7 +96,7 @@ class Player:
 
     def init_pieces(self) -> None:
         """Adds the players pieces of the appropriate color to the pieces data member"""
-        for piece in self._board.board.values():
+        for piece in self.board.values():
             if piece not in (None, "empty"):
                 if self._checker_color == piece.color:
                     self._pieces.append(piece)
@@ -108,6 +104,10 @@ class Player:
     @property
     def pieces(self) -> list[Piece]:
         return self._pieces
+    
+    @property
+    def board(self) -> dict:
+        return self._board.board
 
     @property
     def captured_pieces(self) -> int:
@@ -124,11 +124,13 @@ class Player:
         """
         paths = []
         for piece in self._pieces:
-            forward_left = Direction.FORWARD_LEFT.move(piece.pos, piece.color)
-            forward_right = Direction.FORWARD_RIGHT.move(piece.pos, piece.color)
+            pos = piece.pos
+            color = piece.color
+            forward_left = Direction.FORWARD_LEFT.move(pos, color)
+            forward_right = Direction.FORWARD_RIGHT.move(pos, color)
             # rather than if chain send each direction to a function
-            self.handle_moves((piece.pos, forward_left), piece, True, paths)
-            self.handle_moves((piece.pos, forward_right), piece, True, paths)
+            self.handle_moves((pos, forward_left), piece, True, paths)
+            self.handle_moves((pos, forward_right), piece, True, paths)
             if piece.rank == 'king':
                 pass
         return paths
@@ -141,8 +143,9 @@ class Player:
         two moves in curr_path and adds each path to the paths list
         """
         *rest, curr_pos, next_pos = curr_path
-        next_val = self._board.board.get(next_pos)
-        opp_color = "black" if piece.color == "white" else "white"
+        next_val = self.board.get(next_pos)
+        color = piece.color
+        opp_color = "black" if color == "white" else "white"
         if next_val is None:
             return
         if next_val == "empty" and not first_move:
@@ -150,14 +153,14 @@ class Player:
             paths.append(path)
             return
         if next_val == "empty":
-            paths.append((piece.pos, next_pos))
+            paths.append(curr_path)
             return
         if next_val.color == opp_color:
             move = next_pos - curr_pos
             jump = next_pos + move
-            if self._board.board.get(jump) == "empty":
-                forward_left = Direction.FORWARD_LEFT.move(jump, piece.color)
-                forward_right = Direction.FORWARD_RIGHT.move(jump, piece.color)
+            if self.board.get(jump) == "empty":
+                forward_left = Direction.FORWARD_LEFT.move(jump, color)
+                forward_right = Direction.FORWARD_RIGHT.move(jump, color)
                 left_path = *curr_path, jump, forward_left
                 right_path = *curr_path, jump, forward_right
                 first_move = False
