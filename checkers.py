@@ -15,7 +15,7 @@ Pos = complex
 Path = tuple[complex]
 
 
-class Checkers:
+class Board:
     """Represents a game of checkers between two players
     objects with the checker board as a data member"""
 
@@ -40,51 +40,6 @@ class Checkers:
                 self._board[coord] = "empty"
             else:
                 self._board[coord] = Piece(coord, "black")
-
-    def valid_paths(self, player: Player) -> list[Path]:
-        """
-        Returns all possible paths that a given player can take with
-        their current pieces
-        """
-        paths = []
-        for piece in player.pieces:
-            forward_left = Direction.FORWARD_LEFT.move(piece.pos, piece.color)
-            forward_right = Direction.FORWARD_RIGHT.move(piece.pos, piece.color)
-            # rather than if chain send each direction to a function
-            self.handle_moves((piece.pos, forward_left), piece, True, paths)
-            self.handle_moves((piece.pos, forward_right), piece, True, paths)
-        return paths
-
-    def handle_moves(
-        self, curr_path: Path, piece: Piece, first_move: bool, paths: list[Path]
-    ) -> None:
-        """
-        Recursive function that builds all possible paths from the given first
-        two moves in curr_path and adds each path to the paths list
-        """
-        *rest, curr_pos, next_pos = curr_path
-        next_val = self._board.get(next_pos)
-        opp_color = "black" if piece.color == "white" else "white"
-        if next_val is None:
-            return
-        if next_val == "empty" and not first_move:
-            path = *rest, curr_pos
-            paths.append(path)
-            return
-        if next_val == "empty":
-            paths.append((piece.pos, next_pos))
-            return
-        if next_val.color == opp_color:
-            move = next_pos - curr_pos
-            jump = next_pos + move
-            if self._board.get(jump) == "empty":
-                forward_left = Direction.FORWARD_LEFT.move(jump, piece.color)
-                forward_right = Direction.FORWARD_RIGHT.move(jump, piece.color)
-                left_path = *curr_path, jump, forward_left
-                right_path = *curr_path, jump, forward_right
-                first_move = False
-                self.handle_moves(left_path, piece, first_move, paths)
-                self.handle_moves(right_path, piece, first_move, paths)
 
     def board_array(self):
         """Returns the checker board in the form of an array"""
@@ -136,16 +91,16 @@ class Player:
     data members player name and checker color
     """
 
-    def __init__(self, checker_color: str, checkers_game: Checkers):
+    def __init__(self, checker_color: str, board: Board):
         self._checker_color = checker_color
-        self._checkers_game = checkers_game
+        self._board = board
         self._pieces: list[Piece] = []
         self.init_pieces()
         self._captured_pieces: int = 0
 
     def init_pieces(self) -> None:
         """Adds the players pieces of the appropriate color to the pieces data member"""
-        for piece in self._checkers_game.board.values():
+        for piece in self._board.board.values():
             if piece not in (None, "empty"):
                 if self._checker_color == piece.color:
                     self._pieces.append(piece)
@@ -161,6 +116,53 @@ class Player:
         the player has captured
         """
         return self._captured_pieces_count
+    
+    def valid_paths(self) -> list[Path]:
+        """
+        Returns all possible paths that a given player can take with
+        their current pieces
+        """
+        paths = []
+        for piece in self._pieces:
+            forward_left = Direction.FORWARD_LEFT.move(piece.pos, piece.color)
+            forward_right = Direction.FORWARD_RIGHT.move(piece.pos, piece.color)
+            # rather than if chain send each direction to a function
+            self.handle_moves((piece.pos, forward_left), piece, True, paths)
+            self.handle_moves((piece.pos, forward_right), piece, True, paths)
+            if piece.rank == 'king':
+                pass
+        return paths
+
+    def handle_moves(
+        self, curr_path: Path, piece: Piece, first_move: bool, paths: list[Path]
+    ) -> None:
+        """
+        Recursive function that builds all possible paths from the given first
+        two moves in curr_path and adds each path to the paths list
+        """
+        *rest, curr_pos, next_pos = curr_path
+        next_val = self._board.board.get(next_pos)
+        opp_color = "black" if piece.color == "white" else "white"
+        if next_val is None:
+            return
+        if next_val == "empty" and not first_move:
+            path = *rest, curr_pos
+            paths.append(path)
+            return
+        if next_val == "empty":
+            paths.append((piece.pos, next_pos))
+            return
+        if next_val.color == opp_color:
+            move = next_pos - curr_pos
+            jump = next_pos + move
+            if self._board.board.get(jump) == "empty":
+                forward_left = Direction.FORWARD_LEFT.move(jump, piece.color)
+                forward_right = Direction.FORWARD_RIGHT.move(jump, piece.color)
+                left_path = *curr_path, jump, forward_left
+                right_path = *curr_path, jump, forward_right
+                first_move = False
+                self.handle_moves(left_path, piece, first_move, paths)
+                self.handle_moves(right_path, piece, first_move, paths)
 
 
 class Piece:
