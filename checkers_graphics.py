@@ -28,7 +28,7 @@ class CheckerSprite(pygame.sprite.Sprite):
 
 
 board_surface = pygame.image.load('graphics/chessboard2.png').convert_alpha()
-checkers = pygame.image.load('graphics/checker.png').convert_alpha()
+black_piece = pygame.image.load('graphics/.png').convert_alpha()
 # correlate piece position tuples with piece position multiply x and y by 60.5
 # 6,5 -> 6*60.5, 5*60.5
 
