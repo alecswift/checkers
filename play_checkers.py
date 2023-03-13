@@ -43,28 +43,23 @@ class Checkers:
         if event.type == pygame.QUIT:
             self._running = False
         if event.type == pygame.MOUSEBUTTONUP:
-            # separate to new function
-            if self._current_checker is not None:
-                valid_paths = (
-                    self._player_1.valid_paths()
-                )  # add player variable for # 2 player
-                for path in valid_paths:
-                    # could set current paths of piece and iterate through those rather than all paths
-                    start_pos, end_pos = path
-                    screen_target = None
-                    if self._current_checker.piece.pos == start_pos:
-                        x_coord, y_coord = int(end_pos.real), int(end_pos.imag)
-                        screen_target = (
-                            x_coord * 60.5 + 30.25,
-                            y_coord * 60.5 + 30.25,
-                        )  # middle of end path square
-                    if (
-                        screen_target is not None
-                        and self._current_checker.rect.collidepoint(screen_target)
-                    ):
-                        self._player_1.no_capture_move(path)
-                self._current_checker.update()
-                self._current_checker = None
+            self.mouse_button_up()
+
+    def mouse_button_up(self):
+        if self._current_checker is not None:
+            valid_paths = self._player_1.valid_paths()  # add player variable for # 2 player
+            for path in valid_paths:
+                # could set current paths of piece and iterate through those rather than all paths
+                start_pos, end_pos = path
+                screen_target = None
+                if self._current_checker.piece.pos == start_pos:
+                    x_coord, y_coord = int(end_pos.real), int(end_pos.imag)
+                    # middle of end path square
+                    screen_target = (x_coord * 60.5 + 30.25, y_coord * 60.5 + 30.25,)
+                if screen_target is not None and self._current_checker.rect.collidepoint(screen_target):
+                    self._player_1.no_capture_move(path)
+            self._current_checker.update()
+            self._current_checker = None
 
     def on_input(self):
         mouse_pos = pygame.mouse.get_pos()
