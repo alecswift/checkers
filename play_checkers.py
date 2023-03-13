@@ -26,6 +26,7 @@ class Checkers:
         self._curr_player = None
         self._next_player = None
         self._current_checker = None
+        self._capture_path = None
 
     def on_init(self):
         pygame.init()
@@ -49,9 +50,14 @@ class Checkers:
         if self._current_checker is None:
             return
         # add player variable for # 2 player
-        potential_paths = self._curr_player.potential_paths()
-        valid_paths = self._curr_player.prune_paths(potential_paths)
-        is_capture_move = len(valid_paths[0]) != 2
+        if self._capture_path is not None:
+            # change to paths only from the specific piece?
+            valid_paths = [self._capture_path]
+            is_capture_move = True
+        else:
+            potential_paths = self._curr_player.potential_paths()
+            valid_paths = self._curr_player.prune_paths(potential_paths)
+            is_capture_move = len(valid_paths[0]) != 2
         for path in valid_paths:
             if is_capture_move:
                 start_pos, _, end_pos, *_ = path
@@ -70,7 +76,11 @@ class Checkers:
                 self._curr_player.no_capture_move(start_pos, end_pos)
                 self.switch_player()
             if is_capture_move:
-                pass
+                new_path = self._curr_player.capture_move(path, self._next_player)
+                if new_path:
+                    self._capture_path = new_path
+                else:
+                    self.switch_player()
         self._current_checker.update()
         self._current_checker = None
 

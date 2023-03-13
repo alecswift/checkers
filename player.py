@@ -104,11 +104,9 @@ class Player:
         self.no_capture_move(start_pos, end_pos)
         opp_piece = self.board[opp_pos]
         opponent.pieces.remove(opp_piece)
-        # self.board.checkers.remove() remove from sprites
+        self._board.checkers.remove(opp_piece)
         self.board[opp_pos] = 'empty'
-        
-        
-        
+        return rest
 
 class Direction(Enum):
     """Represents all the directions a checker piece can move"""
