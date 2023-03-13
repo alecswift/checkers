@@ -1,3 +1,15 @@
+# to do
+# game logic
+    # handle capturing moves
+    # handle piece promotions
+    # handle game winning conditions (if no valid paths for any pieces game lost)
+    # handle player switching
+# formatting
+    # possibly reformat class organization (combine Board and board_image?)
+    # doc strings
+    # type hinting for function calls
+    # readme
+
 import pygame
 from sys import exit
 from itertools import product
