@@ -12,8 +12,8 @@
 
 import pygame
 from sys import exit
-from itertools import product
-from checkers import Board, Player
+from board import BoardImage
+from player import Player
 
 
 class Checkers:
@@ -101,70 +101,6 @@ class Checkers:
             self.on_loop()
             self.on_render()
         self.on_cleanup()
-
-
-class BoardImage(Board):
-    # possibly combine with board class rather than inheritance?
-    def __init__(self, surface, checkers):
-        super().__init__()
-        self._checkers = checkers  # group of checkers sprites
-        self._surface = surface
-        self.set_checkers()
-
-    @property
-    def checkers(self):
-        return self._checkers
-
-    @property
-    def surface(self):
-        return self._surface
-
-    def set_checkers(self):
-        for piece in self.board.values():
-            if piece in (None, "empty"):
-                continue
-            else:
-                self._checkers.add(CheckerSprite(piece))
-
-    def display_board(self, screen):
-        for x_coord, y_coord in product(range(0, 364, 121), range(0, 364, 121)):
-            screen.blit(self._surface, (x_coord, y_coord))
-
-
-class CheckerSprite(pygame.sprite.Sprite):
-    """moves a clenched fist on the screen, following the mouse"""
-
-    # factor to multiply x and y of the piece, so it is displayed properly on the screen
-    COORD_FACTOR = 60.5
-
-    def __init__(self, piece):
-        super().__init__()
-        # messy here fix it up
-        self._piece = piece
-        image_path = f"graphics/{piece.color}_piece.png"
-        self.image = pygame.image.load(image_path).convert_alpha()
-        # change this to update call elsewhere?
-        x_coord, y_coord = int(piece.pos.real), int(piece.pos.imag)
-        screen_pos = (x_coord * self.COORD_FACTOR, y_coord * self.COORD_FACTOR)
-        self.rect = self.image.get_rect(topleft=(screen_pos))
-
-    @property
-    def piece(self):
-        return self._piece
-
-    # https://stackoverflow.com/questions/16825645/how-to-make-a-sprite-follow-your-mouse-cursor-using-pygame
-    def update(self):
-        """Change the position of the checker based on the piece position data member"""
-        x_coord, y_coord = int(self._piece.pos.real), int(self._piece.pos.imag)
-        self.rect.topleft = (x_coord * self.COORD_FACTOR, y_coord * self.COORD_FACTOR)
-
-    def update_from_mouse(self):
-        "move the checker based on the mouse position"
-        # board.board[self._piece.pos] = "empty" # change so it only does this once or impossible?
-        # add layering over other checkers
-        pos = pygame.mouse.get_pos()
-        self.rect.center = pos
-
 
 if __name__ == "__main__":
     checkers = Checkers()

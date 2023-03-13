@@ -1,6 +1,7 @@
 import unittest
 from unittest import TestCase
-from checkers import Board, Player
+from board import Board
+from player import Player
 
 
 class TestCheckers(TestCase):
