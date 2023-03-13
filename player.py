@@ -1,9 +1,10 @@
 from __future__ import annotations
 from enum import Enum
-from board import Board, Piece
+from board import Board, Checker
 
 Pos = complex
 Path = tuple[complex]
+
 
 class Player:
     """
@@ -14,16 +15,15 @@ class Player:
     def __init__(self, checker_color: str, board: Board):
         self._color = checker_color
         self._board = board
-        self._pieces: list[Piece] = [] # possibly change to set
+        self._pieces: list[Checker] = set()
         self.init_pieces()
-        self._captured_pieces: int = 0
 
     def init_pieces(self) -> None:
         """Adds the players pieces of the appropriate color to the pieces data member"""
         for piece in self.board.values():
-            is_player_piece = piece not in (None, "empty") and self._color == piece.color
+            is_player_piece = isinstance(piece, Checker) and self._color == piece.color
             if is_player_piece:
-                self._pieces.append(piece)
+                self._pieces.add(piece)
 
     @property
     def pieces(self) -> list[Piece]:
@@ -60,7 +60,7 @@ class Player:
         return paths
 
     def build_path(
-        self, curr_path: Path, piece: Piece, first_move: bool, paths: list[Path]
+        self, curr_path: Path, piece: Checker, first_move: bool, paths: list[Path]
     ) -> None:
         """
         Recursive function that builds all possible paths from the given first
@@ -71,10 +71,6 @@ class Player:
         color = piece.color
         opp_color = "black" if color == "white" else "white"
         if next_val is None:
-            return
-        if next_val == "empty" and not first_move:
-            path = *rest, curr_pos
-            paths.append(path)
             return
         if next_val == "empty":
             paths.append(curr_path)
@@ -90,20 +86,29 @@ class Player:
                 first_move = False
                 self.build_path(left_path, piece, first_move, paths)
                 self.build_path(right_path, piece, first_move, paths)
+            else:
+                paths.append((*rest, curr_pos))
 
     def prune_paths(self, paths):
         max_length = max(len(path) for path in paths)
         return [path for path in paths if len(path) == max_length]
     
-    def no_capture_move(self, path: Path):
-        start_pos, end_pos = path
+    def no_capture_move(self, start_pos: complex, end_pos: complex) -> None:
         piece = self.board[start_pos]
-        self.board[start_pos] = "empty"
+        self.board[start_pos] = 'empty'
         self.board[end_pos] = piece
         piece.pos = end_pos
 
-    def capture_move(self, path):
-        pass
+    def capture_move(self, path, opponent):
+        start_pos, opp_pos, end_pos, *rest = path
+        self.no_capture_move(start_pos, end_pos)
+        opp_piece = self.board[opp_pos]
+        opponent.pieces.remove(opp_piece)
+        # self.board.checkers.remove() remove from sprites
+        self.board[opp_pos] = 'empty'
+        
+        
+        
 
 class Direction(Enum):
     """Represents all the directions a checker piece can move"""

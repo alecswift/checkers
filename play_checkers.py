@@ -23,9 +23,8 @@ class Checkers:
         self._size = self.weight, self.height = 484, 484
         self._caption = None
         self._board_image = None
-        self._player_1 = None
-        self._player_2 = None
         self._curr_player = None
+        self._next_player = None
         self._current_checker = None
 
     def on_init(self):
@@ -36,9 +35,8 @@ class Checkers:
         board_surface = pygame.image.load("graphics/chessboard2.png").convert_alpha()
         checkers = pygame.sprite.Group()
         self._board_image = BoardImage(board_surface, checkers)
-        self._player_1 = Player("black", self._board_image)
-        self._player_2 = Player("white", self._board_image)
-        self._curr_player = self._player_1
+        self._curr_player = Player("black", self._board_image)
+        self._next_player = Player("white", self._board_image)
         self._running = True
 
     def on_event(self, event):
@@ -59,7 +57,7 @@ class Checkers:
                 start_pos, _, end_pos, *_ = path
             else:
                 start_pos, end_pos = path
-            if self._current_checker.piece.pos != start_pos:
+            if self._current_checker.pos != start_pos:
                 continue
             # could set current paths of piece and iterate through those rather than all paths
 
@@ -69,7 +67,7 @@ class Checkers:
             screen_target = (x_coord * 60.5 + 30.25, y_coord * 60.5 + 30.25)
             pos_selected = self._current_checker.rect.collidepoint(screen_target)
             if not is_capture_move and pos_selected:
-                self._curr_player.no_capture_move(path)
+                self._curr_player.no_capture_move(start_pos, end_pos)
                 self.switch_player()
             if is_capture_move:
                 pass
@@ -77,10 +75,7 @@ class Checkers:
         self._current_checker = None
 
     def switch_player(self):
-        if self._curr_player == self._player_1:
-            self._curr_player = self._player_2
-        else:
-            self._curr_player = self._player_1
+        self._curr_player, self._next_player = self._next_player, self._curr_player
 
     def on_input(self):
         mouse_pos = pygame.mouse.get_pos()

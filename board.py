@@ -31,17 +31,18 @@ class Board:
             if (x_coord + y_coord) % 2 == 0:  # Invalid squares
                 self._board[coord] = None
             elif y_coord in (0, 1, 2):
-                self._board[coord] = Piece(coord, "white")
+                self._board[coord] = Checker(coord, "white")
             elif y_coord in (3, 4):
                 self._board[coord] = "empty"
             else:
-                self._board[coord] = Piece(coord, "black")
+                self._board[coord] = Checker(coord, "black")
 
     def board_array(self):
         """Returns the checker board in the form of an array"""
         board_array = [[None] * 8 for _ in range(8)]
         for pos, piece in self._board.items():
             if piece not in (None, "empty"):
+                pos = piece.pos
                 x_coord, y_coord = int(pos.real), int(pos.imag)
                 val = piece.color
                 board_array[y_coord][x_coord] = val
@@ -98,10 +99,8 @@ class BoardImage(Board):
 
     def set_checkers(self):
         for piece in self.board.values():
-            if piece in (None, "empty"):
-                continue
-            else:
-                self._checkers.add(CheckerSprite(piece))
+            if isinstance(piece, Checker):
+                self._checkers.add(piece)
 
     def display_board(self, screen):
         for x_coord, y_coord in product(range(0, 364, 121), range(0, 364, 121)):
@@ -124,31 +123,45 @@ class Piece:
         self.rank = "man"
 
 
-class CheckerSprite(pygame.sprite.Sprite):
+class Checker(pygame.sprite.Sprite):
     """moves a clenched fist on the screen, following the mouse"""
 
     # factor to multiply x and y of the piece, so it is displayed properly on the screen
     COORD_FACTOR = 60.5
 
-    def __init__(self, piece):
+    def __init__(self, pos, color):
         super().__init__()
         # messy here fix it up
-        self._piece = piece
-        image_path = f"graphics/{piece.color}_piece.png"
+        self._pos = pos
+        self._color = color
+        self._rank = "man"
+        image_path = f"graphics/{color}_piece.png"
         self.image = pygame.image.load(image_path).convert_alpha()
         # change this to update call elsewhere?
-        x_coord, y_coord = int(piece.pos.real), int(piece.pos.imag)
+        x_coord, y_coord = int(pos.real), int(pos.imag)
         screen_pos = (x_coord * self.COORD_FACTOR, y_coord * self.COORD_FACTOR)
         self.rect = self.image.get_rect(topleft=(screen_pos))
 
     @property
-    def piece(self):
-        return self._piece
+    def pos(self):
+        return self._pos
+    
+    @pos.setter
+    def pos(self, new_pos):
+        self._pos = new_pos
+
+    
+    @property
+    def color(self):
+        return self._color
+    
+    def rank(self):
+        return self._rank
 
     # https://stackoverflow.com/questions/16825645/how-to-make-a-sprite-follow-your-mouse-cursor-using-pygame
     def update(self):
         """Change the position of the checker based on the piece position data member"""
-        x_coord, y_coord = int(self._piece.pos.real), int(self._piece.pos.imag)
+        x_coord, y_coord = int(self._pos.real), int(self._pos.imag)
         self.rect.topleft = (x_coord * self.COORD_FACTOR, y_coord * self.COORD_FACTOR)
 
     def update_from_mouse(self):
