@@ -80,13 +80,15 @@ while True:
                 for path in valid_paths:
                 # could set current paths of piece and iterate through those rather than all paths
                     start_pos, end_pos = path
-                    x_coord, y_coord = end_pos.real, end_pos.imag
-                    screen_target = (x_coord * 60.5 + 30.25, y_coord * 60.5 + 30.25) # middle of end path square
-                    if current_checker.rect.collidepoint(screen_target):
+                    screen_target = None
+                    if current_checker._piece.pos == start_pos:
+                        x_coord, y_coord = int(end_pos.real), int(end_pos.imag)
+                        screen_target = (x_coord * 60.5 + 30.25, y_coord * 60.5 + 30.25) # middle of end path square
+                        print(screen_target)
+                    if screen_target is not None and current_checker.rect.collidepoint(screen_target):
+                        print("hello")
                         player_1.no_capture_move(path)
-                        current_checker.update()
-                    else:
-                        current_checker.update()
+                current_checker.update()
             # check if checker start pos matches valid path
             current_checker = None
             # go back to initial position
