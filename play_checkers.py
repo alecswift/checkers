@@ -25,6 +25,7 @@ class Checkers:
         self._board_image = None
         self._player_1 = None
         self._player_2 = None
+        self._curr_player = None
         self._current_checker = None
 
     def on_init(self):
@@ -37,6 +38,7 @@ class Checkers:
         self._board_image = BoardImage(board_surface, checkers)
         self._player_1 = Player("black", self._board_image)
         self._player_2 = Player("white", self._board_image)
+        self._curr_player = self._player_1
         self._running = True
 
     def on_event(self, event):
@@ -45,26 +47,40 @@ class Checkers:
         if event.type == pygame.MOUSEBUTTONUP:
             self.mouse_button_up()
 
-    def mouse_button_up(self):
+    def mouse_button_up(self) -> None:
         if self._current_checker is None:
             return
         # add player variable for # 2 player
-        potential_paths = self._player_1.potential_paths()
-        valid_paths = self._player_1.prune_paths(potential_paths)
+        potential_paths = self._curr_player.potential_paths()
+        valid_paths = self._curr_player.prune_paths(potential_paths)
+        is_capture_move = len(valid_paths[0]) != 2
         for path in valid_paths:
+            if is_capture_move:
+                start_pos, _, end_pos, *_ = path
+            else:
+                start_pos, end_pos = path
+            if self._current_checker.piece.pos != start_pos:
+                continue
             # could set current paths of piece and iterate through those rather than all paths
-            start_pos, end_pos = path
-            screen_target = None
-            if self._current_checker.piece.pos == start_pos:
-                x_coord, y_coord = int(end_pos.real), int(end_pos.imag)
-                # middle of end path square
-                # function for converting coords from complex to screen coords?
-                screen_target = (x_coord * 60.5 + 30.25, y_coord * 60.5 + 30.25)
-                pos_selected = self._current_checker.rect.collidepoint(screen_target)
-            if screen_target is not None and pos_selected:
-                self._player_1.no_capture_move(path)
+
+            x_coord, y_coord = int(end_pos.real), int(end_pos.imag)
+            # middle of end path square
+            # function for converting coords from complex to screen coords?
+            screen_target = (x_coord * 60.5 + 30.25, y_coord * 60.5 + 30.25)
+            pos_selected = self._current_checker.rect.collidepoint(screen_target)
+            if not is_capture_move and pos_selected:
+                self._curr_player.no_capture_move(path)
+                self.switch_player()
+            if is_capture_move:
+                pass
         self._current_checker.update()
         self._current_checker = None
+
+    def switch_player(self):
+        if self._curr_player == self._player_1:
+            self._curr_player = self._player_2
+        else:
+            self._curr_player = self._player_1
 
     def on_input(self):
         mouse_pos = pygame.mouse.get_pos()
