@@ -8,12 +8,9 @@ screen = pygame.display.set_mode((484, 484))
 pygame.display.set_caption("Checkers")
 clock = pygame.time.Clock()
 
-board = Board()
-player_1 = Player("black", board)
-player_2 = Player("white", board)
-
 
 class BoardImage(Board):
+    # possibly combine with board class rather than inheritance?
     def __init__(self, surface, checkers):
         super().__init__()
         self._screen = pygame.display.set_mode((484, 484))
@@ -43,12 +40,17 @@ class CheckerSprite(pygame.sprite.Sprite):
         self._piece = piece
         image_path = f"graphics/{piece.color}_piece.png"
         self.image = pygame.image.load(image_path).convert_alpha()
-        x_coord, y_coord = int(piece.pos.real), int(piece.pos.imag)
+        x_coord, y_coord = int(piece.pos.real), int(piece.pos.imag) # change this to update call elsewhere?
         screen_pos = (x_coord * self.COORD_FACTOR, y_coord * self.COORD_FACTOR)
         self.rect = self.image.get_rect(topleft=(screen_pos))
 
     # https://stackoverflow.com/questions/16825645/how-to-make-a-sprite-follow-your-mouse-cursor-using-pygame
     def update(self):
+        """Change the position of the checker based on the piece position data member"""
+        x_coord, y_coord = int(self._piece.pos.real), int(self._piece.pos.imag)
+        self.rect.topleft = (x_coord * self.COORD_FACTOR, y_coord * self.COORD_FACTOR)
+
+    def update_from_mouse(self):
         "move the checker based on the mouse position"
         # board.board[self._piece.pos] = "empty" # change so it only does this once or impossible?
         # add layering over other checkers
@@ -59,6 +61,9 @@ class CheckerSprite(pygame.sprite.Sprite):
 board_surface = pygame.image.load("graphics/chessboard2.png").convert_alpha()
 checkers = pygame.sprite.Group()
 board_image = BoardImage(board_surface, checkers)
+board = board_image
+player_1 = Player("black", board)
+player_2 = Player("white", board)
 board_image.set_checkers()  # set outside loop for initial state
 current_checker = None
 # correlate piece position tuples with piece position multiply x and y by 60.5
@@ -70,6 +75,19 @@ while True:
             pygame.quit()
             exit()
         if event.type == pygame.MOUSEBUTTONUP:
+            if current_checker is not None:
+                valid_paths = player_1.valid_paths()
+                for path in valid_paths:
+                # could set current paths of piece and iterate through those rather than all paths
+                    start_pos, end_pos = path
+                    x_coord, y_coord = end_pos.real, end_pos.imag
+                    screen_target = (x_coord * 60.5 + 30.25, y_coord * 60.5 + 30.25) # middle of end path square
+                    if current_checker.rect.collidepoint(screen_target):
+                        player_1.no_capture_move(path)
+                        current_checker.update()
+                    else:
+                        current_checker.update()
+            # check if checker start pos matches valid path
             current_checker = None
             # go back to initial position
 
@@ -85,16 +103,17 @@ while True:
     checkers.draw(screen)
 
     # User input
+    # loop through paths allow movement for start pos pieces
+    # move all below to piece update function?
     mouse_pos = pygame.mouse.get_pos()
     if current_checker is not None:
         mouse_pressed, *_ = pygame.mouse.get_pressed()
         if current_checker.rect.collidepoint(mouse_pos) and mouse_pressed:
-            current_checker.update()
+            current_checker.update_from_mouse()
     else:
         for checker in checkers:
             mouse_pressed, *_ = pygame.mouse.get_pressed()
             if checker.rect.collidepoint(mouse_pos) and mouse_pressed:
-                checker.update()
                 current_checker = checker
 
     # possibly rect collisions for landing on specific squares?
