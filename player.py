@@ -41,7 +41,7 @@ class Player:
         """
         return self._captured_pieces_count
 
-    def valid_paths(self) -> list[Path]:
+    def potential_paths(self) -> list[Path]:
         """
         Returns all possible paths that a given player can take with
         their current pieces
@@ -53,13 +53,13 @@ class Player:
             forward_left = Direction.FORWARD_LEFT.move(pos, color)
             forward_right = Direction.FORWARD_RIGHT.move(pos, color)
             # rather than if chain send each direction to a function
-            self.build_paths((pos, forward_left), piece, True, paths)
-            self.build_paths((pos, forward_right), piece, True, paths)
+            self.build_path((pos, forward_left), piece, True, paths)
+            self.build_path((pos, forward_right), piece, True, paths)
             if piece.rank == "king":
                 pass
         return paths
 
-    def build_paths(
+    def build_path(
         self, curr_path: Path, piece: Piece, first_move: bool, paths: list[Path]
     ) -> None:
         """
@@ -88,8 +88,12 @@ class Player:
                 left_path = *curr_path, jump, forward_left
                 right_path = *curr_path, jump, forward_right
                 first_move = False
-                self.build_paths(left_path, piece, first_move, paths)
-                self.build_paths(right_path, piece, first_move, paths)
+                self.build_path(left_path, piece, first_move, paths)
+                self.build_path(right_path, piece, first_move, paths)
+
+    def prune_paths(self, paths):
+        max_length = max(len(path) for path in paths)
+        return [path for path in paths if len(path) == max_length]
     
     def no_capture_move(self, path: Path):
         start_pos, end_pos = path
@@ -97,6 +101,9 @@ class Player:
         self.board[start_pos] = "empty"
         self.board[end_pos] = piece
         piece.pos = end_pos
+
+    def capture_move(self, path):
+        pass
 
 class Direction(Enum):
     """Represents all the directions a checker piece can move"""

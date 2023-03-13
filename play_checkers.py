@@ -49,7 +49,8 @@ class Checkers:
         if self._current_checker is None:
             return
         # add player variable for # 2 player
-        valid_paths = self._player_1.valid_paths()
+        potential_paths = self._player_1.potential_paths()
+        valid_paths = self._player_1.prune_paths(potential_paths)
         for path in valid_paths:
             # could set current paths of piece and iterate through those rather than all paths
             start_pos, end_pos = path
