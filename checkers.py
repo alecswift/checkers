@@ -90,7 +90,7 @@ class Player:
     def __init__(self, checker_color: str, board: Board):
         self._color = checker_color
         self._board = board
-        self._pieces: list[Piece] = []
+        self._pieces: list[Piece] = [] # possibly change to set
         self.init_pieces()
         self._captured_pieces: int = 0
 
@@ -129,13 +129,13 @@ class Player:
             forward_left = Direction.FORWARD_LEFT.move(pos, color)
             forward_right = Direction.FORWARD_RIGHT.move(pos, color)
             # rather than if chain send each direction to a function
-            self.handle_moves((pos, forward_left), piece, True, paths)
-            self.handle_moves((pos, forward_right), piece, True, paths)
+            self.build_paths((pos, forward_left), piece, True, paths)
+            self.build_paths((pos, forward_right), piece, True, paths)
             if piece.rank == "king":
                 pass
         return paths
 
-    def handle_moves(
+    def build_paths(
         self, curr_path: Path, piece: Piece, first_move: bool, paths: list[Path]
     ) -> None:
         """
@@ -164,8 +164,15 @@ class Player:
                 left_path = *curr_path, jump, forward_left
                 right_path = *curr_path, jump, forward_right
                 first_move = False
-                self.handle_moves(left_path, piece, first_move, paths)
-                self.handle_moves(right_path, piece, first_move, paths)
+                self.build_paths(left_path, piece, first_move, paths)
+                self.build_paths(right_path, piece, first_move, paths)
+    
+    def no_capture_move(self, path: Path):
+        start_pos, end_pos = path
+        piece = self.board[start_pos]
+        self.board[start_pos] = "empty"
+        self.board[end_pos] = piece
+        piece.pos = end_pos
 
 
 class Piece:
