@@ -2,7 +2,7 @@
 # game logic
 # improve readability of mouse button up method
 # need to generate new paths if a capture happens
-# possibly add backend logic for switching players??
+# possibly add backend logic for switching places
 # handle piece promotions
 # handle game winning conditions (if no valid paths for any pieces game lost)
 # fully test a check for bugs in capture/path system a
@@ -61,7 +61,10 @@ class Checkers:
         # add player variable for # 2 player
         if self._capture_path is not None:
             # change to retrieving paths: could be mutiple possible future capture paths?
-            valid_paths = [self._capture_path]
+            paths = []
+            piece = self._board.board[self._capture_path]
+            self._curr_player.next_move((self._capture_path,), paths, piece, False)
+            valid_paths = self._curr_player.prune_paths(paths)
         else:
             potential_paths = self._curr_player.potential_paths()
             valid_paths = self._curr_player.prune_paths(potential_paths)
@@ -87,7 +90,7 @@ class Checkers:
                 self._board_image.remove_checker(opp_pos)
                 capture_remaining = 2 < len(new_path)
                 if capture_remaining:
-                    self._capture_path = new_path
+                    self._capture_path = end_pos
                 else:
                     self._capture_path = None
                     self.switch_player()
