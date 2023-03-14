@@ -71,12 +71,9 @@ class Checkers:
                 start_pos, end_pos = path
             if self._current_checker.pos != start_pos:
                 continue
-            # could set current paths of piece and iterate through those rather than all paths
 
-            x_coord, y_coord = int(end_pos.real), int(end_pos.imag)
             # middle of end path square
-            # function for converting coords from complex to screen coords?
-            screen_target = (x_coord * 60.5 + 30.25, y_coord * 60.5 + 30.25)
+            screen_target = convert_to_screen_pos(end_pos, 30.25)
             pos_selected = self._current_checker.rect.collidepoint(screen_target)
             if not is_capture_move and pos_selected:
                 self._curr_player.no_capture_move(start_pos, end_pos)
@@ -166,7 +163,6 @@ class BoardImage:
                 return
 
 
-
 class CheckerSprite(pygame.sprite.Sprite):
     """moves a clenched fist on the screen, following the mouse"""
 
@@ -209,10 +205,10 @@ class CheckerSprite(pygame.sprite.Sprite):
         self.rect.center = pos
 
 
-def convert_to_screen_pos(pos):
+def convert_to_screen_pos(pos, adder=0):
     COORD_FACTOR = 60.5
     x_coord, y_coord = int(pos.real), int(pos.imag)
-    screen_pos = (x_coord * COORD_FACTOR, y_coord * COORD_FACTOR)
+    screen_pos = (x_coord * COORD_FACTOR + adder, y_coord * COORD_FACTOR + adder)
     return screen_pos
 
 
