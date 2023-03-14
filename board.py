@@ -89,9 +89,6 @@ class Piece:
     player pieces data member and the Checkers board data member
     """
 
-    # One drawback to consider is the redundancy in the board data member
-    # both the key and value contain the position
-
     def __init__(self, pos: Pos, color):
         self.pos = pos
         self.color = color

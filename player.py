@@ -52,7 +52,7 @@ class Player:
             capture = False
             self.next_move(path, paths, piece, capture)
         return paths
-    
+
     def next_move(self, path, paths, piece, capture):
         """
         Finds the next possible move and calls build path with the given
@@ -69,11 +69,11 @@ class Player:
             pass
 
     def build_path(
-        self, curr_path: Path, piece: Piece, capture: bool, paths: list[Path]
+        self, path: Path, piece: Piece, capture: bool, paths: list[Path]
     ) -> None:
         """
         Recursive function that builds all possible paths from the given first
-        two moves in curr_path and adds each path to the paths list
+        two moves in path and adds each path to the paths list
 
         cases for valid paths:
         It's the first move (not capture) and the next space is empty.
@@ -81,19 +81,20 @@ class Player:
         opponent piece. If the next space is an opponents piece trigger
         a recursive call if the space the piece would jump to is empty.
         """
-        *rest, curr_pos, next_pos = curr_path
+        *rest, curr_pos, next_pos = path
         next_val = self.board.get(next_pos)
         color = piece.color
         opp_color = "black" if color == "white" else "white"
+
         if not capture and next_val == "empty":
-            paths.append(curr_path)
-        elif capture and next_val in ("empty", None) or next_val.color == color:
+            paths.append(path)
+        elif capture and (next_val in ("empty", None) or next_val.color == color):
             paths.append((*rest, curr_pos))
         elif next_val is not None and next_val.color == opp_color:
             move = next_pos - curr_pos
             jump = next_pos + move
             if self.board.get(jump) == "empty":
-                self.next_move((*curr_path, jump), paths, piece , True)
+                self.next_move((*path, jump), paths, piece, True)
             elif capture:
                 paths.append((*rest, curr_pos))
 
@@ -106,15 +107,26 @@ class Player:
         self.board[start_pos] = "empty"
         self.board[end_pos] = piece
         piece.pos = end_pos
+        if piece.rank == 'man':
+            self.handle_promotion(piece)
 
     def capture_move(self, path, opponent):
         start_pos, opp_pos, end_pos, *rest = path
+        piece = self.board[start_pos]
         self.no_capture_move(start_pos, end_pos)
         opp_piece = self.board[opp_pos]
         opponent.pieces.remove(opp_piece)
         self.board[opp_pos] = "empty"
         new_path = end_pos, *rest
+        if piece.rank == 'man':
+            self.handle_promotion(piece)
         return new_path
+    
+    def handle_promotion(self, piece: Piece):
+        promotion_row = 0 if piece.color == 'black' else 7
+        curr_row = piece.pos.imag
+        if curr_row == promotion_row:
+            piece.rank = 'king'
 
 
 class Direction(Enum):

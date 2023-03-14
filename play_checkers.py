@@ -1,9 +1,9 @@
 # to do
 # game logic
-# fully test a check for bugs in capture/path system
 # improve readability of mouse button up method
 # handle piece promotions
 # handle game winning conditions (if no valid paths for any pieces game lost)
+# fully test a check for bugs in capture/path system a
 # formatting
 # doc strings
 # type hinting for function calls
@@ -166,12 +166,8 @@ class BoardImage:
 class CheckerSprite(pygame.sprite.Sprite):
     """moves a clenched fist on the screen, following the mouse"""
 
-    # factor to multiply x and y of the piece, so it is displayed properly on the screen
-    COORD_FACTOR = 60.5
-
     def __init__(self, pos, color):
         super().__init__()
-        # messy here fix it up
         image_path = f"graphics/{color}_piece.png"
         screen_pos = convert_to_screen_pos(pos)
         self._pos = pos
@@ -186,6 +182,10 @@ class CheckerSprite(pygame.sprite.Sprite):
     @pos.setter
     def pos(self, new_pos):
         self._pos = new_pos
+        promotion_row = 0 if self._color == 'black' else 7
+        curr_row = self._pos.imag
+        if curr_row == promotion_row:
+            self.promote()
 
     @property
     def color(self):
@@ -194,8 +194,7 @@ class CheckerSprite(pygame.sprite.Sprite):
     # https://stackoverflow.com/questions/16825645/how-to-make-a-sprite-follow-your-mouse-cursor-using-pygame
     def update(self):
         """Change the position of the checker based on the piece position data member"""
-        x_coord, y_coord = int(self._pos.real), int(self._pos.imag)
-        self.rect.topleft = (x_coord * self.COORD_FACTOR, y_coord * self.COORD_FACTOR)
+        self.rect.topleft = convert_to_screen_pos(self._pos)
 
     def update_from_mouse(self):
         "move the checker based on the mouse position"
@@ -203,6 +202,10 @@ class CheckerSprite(pygame.sprite.Sprite):
         # add layering over other checkers
         pos = pygame.mouse.get_pos()
         self.rect.center = pos
+
+    def promote(self):
+        image_path = image_path = f'graphics/{self._color}_king.png'
+        self.image = pygame.image.load(image_path)
 
 
 def convert_to_screen_pos(pos, adder=0):
