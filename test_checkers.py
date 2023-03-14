@@ -60,6 +60,26 @@ class TestPlayer(TestCase):
         expected = {(1+4j, 2+3j, 3+2j,4+1j,5+0j)}
         self.prune_test_helper(expected)
 
+    def test_prune_paths_with_king_double_capture(self):
+        self.player_1.no_capture_move(6+5j, 7+4j)
+        self.player_2.no_capture_move(1+2j, 2+3j)
+        self.player_1.no_capture_move(5+6j, 6+5j)
+        self.player_2.no_capture_move(1j, 1+2j)
+        self.player_1.no_capture_move(4+7j, 5+6j)
+        self.player_2.no_capture_move(2+3j, 3+4j)
+        new_path = self.player_1.capture_move((4+5j, 3+4j, 2+3j,1+2j,1j), self.player_2)
+        self.player_1.capture_move(new_path, self.player_2)
+        self.player_2.no_capture_move(2+1j, 1+2j)
+        self.player_1.no_capture_move(5j, 1+4j)
+        self.player_2.no_capture_move(1+0j, 2+1j)
+        self.player_1.no_capture_move(1j, 1+0j) # black piece promoted
+        self.player_2.no_capture_move(3+2j, 4+3j)
+        expected = {(1+0j,2+1j,3+2j,4+3j,5+4j)}
+        print(self.board.board_array())
+        self.prune_test_helper(expected)
+
+
+
     def prune_test_helper(self, expected):
         potential_paths = self.player_1.potential_paths()
         actual_output = set(self.player_1.prune_paths(potential_paths))
