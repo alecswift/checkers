@@ -86,9 +86,7 @@ class Checkers:
                 new_path = self._curr_player.capture_move(path, self._next_player)
                 self._current_checker.pos = end_pos
                 # remove opponent checker from sprite group make function in boardimage
-                for checker in self._board_image.checkers:
-                    if checker.pos == opp_pos:
-                        checker.kill()
+                self._board_image.remove_checker(opp_pos)
                 if 2 < len(new_path):
                     self._capture_path = new_path
                 else:
@@ -160,6 +158,13 @@ class BoardImage:
     def display_board(self, screen):
         for x_coord, y_coord in product(range(0, 364, 121), range(0, 364, 121)):
             screen.blit(self._surface, (x_coord, y_coord))
+
+    def remove_checker(self, pos):
+        for checker in self._checkers:
+            if checker.pos == pos:
+                checker.kill()
+                return
+
 
 
 class CheckerSprite(pygame.sprite.Sprite):
