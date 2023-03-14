@@ -69,6 +69,7 @@ class Checkers:
             potential_paths = self._curr_player.potential_paths()
             valid_paths = self._curr_player.prune_paths(potential_paths)
         is_capture_move = len(valid_paths[0]) != 2
+
         for path in valid_paths:
             if is_capture_move:
                 start_pos, opp_pos, end_pos, *_ = path
@@ -158,7 +159,7 @@ class BoardImage:
                 self._checkers.add(CheckerSprite(pos, piece.color))
 
     def display_board(self, screen):
-        for x_coord, y_coord in product(range(0, 364, 121), range(0, 364, 121)):
+        for x_coord, y_coord in product(range(0, 364, 121), range(0, 361, 120)):
             screen.blit(self._surface, (x_coord, y_coord))
 
     def remove_checker(self, pos):
