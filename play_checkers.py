@@ -1,15 +1,13 @@
 # to do
 # game logic
-# improve readability of mouse button up method
-# need to generate new paths if a capture happens
-# possibly add backend logic for switching places
-# handle piece promotions
-# handle game winning conditions (if no valid paths for any pieces game lost)
-# fully test a check for bugs in capture/path system a
+#   improve readability of mouse button up method
+#   possibly add backend logic for switching places
+#   handle game winning conditions (if no valid paths for any pieces game lost)
+#   fully test a check for bugs in capture/path system a
 # formatting
-# doc strings
-# type hinting for function calls
-# readme
+#   doc strings
+#   type hinting for function calls
+#   readme
 
 from itertools import product
 import pygame
