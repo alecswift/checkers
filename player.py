@@ -66,11 +66,14 @@ class Player:
         Recursive function that builds all possible paths from the given first
         two moves in curr_path and adds each path to the paths list
         """
+        # should refactor logic here
         *rest, curr_pos, next_pos = curr_path
         next_val = self.board.get(next_pos)
         color = piece.color
         opp_color = "black" if color == "white" else "white"
         if next_val is None:
+            if 2 < len(curr_path):
+                paths.append((*rest, curr_pos))
             return
         if next_val == "empty":
             paths.append(curr_path)
