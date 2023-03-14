@@ -92,10 +92,10 @@ class Player:
     def prune_paths(self, paths):
         max_length = max(len(path) for path in paths)
         return [path for path in paths if len(path) == max_length]
-    
+
     def no_capture_move(self, start_pos: complex, end_pos: complex) -> None:
         piece = self.board[start_pos]
-        self.board[start_pos] = 'empty'
+        self.board[start_pos] = "empty"
         self.board[end_pos] = piece
         piece.pos = end_pos
 
@@ -104,9 +104,10 @@ class Player:
         self.no_capture_move(start_pos, end_pos)
         opp_piece = self.board[opp_pos]
         opponent.pieces.remove(opp_piece)
-        self.board[opp_pos] = 'empty'
+        self.board[opp_pos] = "empty"
         new_path = end_pos, *rest
         return new_path
+
 
 class Direction(Enum):
     """Represents all the directions a checker piece can move"""

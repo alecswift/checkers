@@ -31,11 +31,11 @@ class Board:
             if (x_coord + y_coord) % 2 == 0:  # Invalid squares
                 self._board[coord] = None
             elif y_coord in (0, 1, 2):
-                self._board[coord] = Piece(coord, 'white')
+                self._board[coord] = Piece(coord, "white")
             elif y_coord in (3, 4):
                 self._board[coord] = "empty"
             else:
-                self._board[coord] = Piece(coord, 'black')
+                self._board[coord] = Piece(coord, "black")
 
     def board_array(self):
         """Returns the checker board in the form of an array"""
@@ -96,6 +96,7 @@ class Piece:
         self.pos = pos
         self.color = color
         self.rank = "man"
+
 
 if __name__ == "__main__":
     main()

@@ -51,7 +51,7 @@ class Checkers:
             self.mouse_button_up()
 
     def mouse_button_up(self) -> None:
-        # improve readability of the logic here with 
+        # improve readability of the logic here with
         # functions and readable bools
         if self._current_checker is None:
             return
@@ -96,7 +96,6 @@ class Checkers:
                     self.switch_player()
         self._current_checker.update()
         self._current_checker = None
-
 
     def switch_player(self):
         self._curr_player, self._next_player = self._next_player, self._curr_player
@@ -182,7 +181,7 @@ class CheckerSprite(pygame.sprite.Sprite):
     @property
     def pos(self):
         return self._pos
-    
+
     @pos.setter
     def pos(self, new_pos):
         self._pos = new_pos
