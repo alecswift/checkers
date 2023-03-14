@@ -74,6 +74,12 @@ class Player:
         """
         Recursive function that builds all possible paths from the given first
         two moves in curr_path and adds each path to the paths list
+
+        cases for valid paths:
+        It's the first move (not capture) and the next space is empty.
+        Or anytime after a capture move where the next space is not an
+        opponent piece. If the next space is an opponents piece trigger
+        a recursive call if the space the piece would jump to is empty.
         """
         *rest, curr_pos, next_pos = curr_path
         next_val = self.board.get(next_pos)
@@ -81,7 +87,7 @@ class Player:
         opp_color = "black" if color == "white" else "white"
         if not capture and next_val == "empty":
             paths.append(curr_path)
-        elif capture and next_val in ("empty", None):
+        elif capture and next_val in ("empty", None) or next_val.color == color:
             paths.append((*rest, curr_pos))
         elif next_val is not None and next_val.color == opp_color:
             move = next_pos - curr_pos
