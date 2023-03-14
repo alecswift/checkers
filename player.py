@@ -50,10 +50,14 @@ class Player:
         for piece in self._pieces:
             path = (piece.pos,)
             capture = False
-            self.build_path_1(path, paths, piece, capture)
+            self.next_move(path, paths, piece, capture)
         return paths
     
-    def build_path_1(self, path, paths, piece, capture):
+    def next_move(self, path, paths, piece, capture):
+        """
+        Finds the next possible move and calls build path with the given
+        path, piece, and capture bool
+        """
         *_, curr_pos = path
         forward_left = Direction.FORWARD_LEFT.move(curr_pos, piece.color)
         forward_right = Direction.FORWARD_RIGHT.move(curr_pos, piece.color)
@@ -71,27 +75,19 @@ class Player:
         Recursive function that builds all possible paths from the given first
         two moves in curr_path and adds each path to the paths list
         """
-        # should refactor logic here
         *rest, curr_pos, next_pos = curr_path
         next_val = self.board.get(next_pos)
         color = piece.color
         opp_color = "black" if color == "white" else "white"
         if not capture and next_val == "empty":
             paths.append(curr_path)
-            return
-        if not capture and next_val is None:
-            return
-        if capture and next_val == "empty":
+        elif capture and next_val in ("empty", None):
             paths.append((*rest, curr_pos))
-            return
-        if capture and next_val is None:
-            paths.append((*rest, curr_pos))
-            return
-        if next_val.color == opp_color:
+        elif next_val is not None and next_val.color == opp_color:
             move = next_pos - curr_pos
             jump = next_pos + move
             if self.board.get(jump) == "empty":
-                self.build_path_1((*curr_path, jump), paths, piece , True)
+                self.next_move((*curr_path, jump), paths, piece , True)
             elif capture:
                 paths.append((*rest, curr_pos))
 
