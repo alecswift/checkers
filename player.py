@@ -58,15 +58,27 @@ class Player:
         Finds the next possible move and calls build path with the given
         path, piece, and capture bool
         """
-        *_, curr_pos = path
+        if not capture:
+            prev_pos = None
+            *_, curr_pos = path
+        else:
+            *_, prev_pos, curr_pos = path
         forward_left = Direction.FORWARD_LEFT.move(curr_pos, piece.color)
         forward_right = Direction.FORWARD_RIGHT.move(curr_pos, piece.color)
-        left_path = *path, forward_left
-        right_path = *path, forward_right
-        self.build_path(left_path, piece, capture, paths)
-        self.build_path(right_path, piece, capture, paths)
-        if piece.rank == "king":
-            pass
+        next_positions = [forward_left, forward_right]
+        if piece.rank != "king":
+            for next_position in next_positions:
+                next_path = *path, next_position
+                self.build_path(next_path, piece, capture, paths)
+        else:
+            back_left = Direction.BACK_LEFT.move(curr_pos, piece.color)
+            back_right = Direction.BACK_RIGHT.move(curr_pos, piece.color)
+            next_positions.extend([back_left, back_right])
+            for next_position in next_positions:
+                if prev_pos == next_position:
+                    continue
+                next_path = *path, next_position
+                self.build_path(next_path, piece, capture, paths)
 
     def build_path(
         self, path: Path, piece: Piece, capture: bool, paths: list[Path]

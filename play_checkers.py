@@ -1,6 +1,8 @@
 # to do
 # game logic
 # improve readability of mouse button up method
+# need to generate new paths if a capture happens
+# possibly add backend logic for switching players??
 # handle piece promotions
 # handle game winning conditions (if no valid paths for any pieces game lost)
 # fully test a check for bugs in capture/path system a
