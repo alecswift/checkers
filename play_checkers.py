@@ -1,11 +1,10 @@
 # to do
 # game logic
-# handle capturing moves
+# fully test a check for bugs in capture/path system
+# improve readability of mouse button up method
 # handle piece promotions
 # handle game winning conditions (if no valid paths for any pieces game lost)
-# handle player switching
 # formatting
-# possibly reformat class organization (combine Board and board_image?)
 # doc strings
 # type hinting for function calls
 # readme
@@ -53,17 +52,18 @@ class Checkers:
     def mouse_button_up(self) -> None:
         # improve readability of the logic here with
         # functions and readable bools
+        # create valid paths is on_loop method for current player? possibly to much work
+        # every loop so maybe no
         if self._current_checker is None:
             return
         # add player variable for # 2 player
         if self._capture_path is not None:
             # change to paths only from the specific piece?
             valid_paths = [self._capture_path]
-            is_capture_move = len(valid_paths[0]) != 2
         else:
             potential_paths = self._curr_player.potential_paths()
             valid_paths = self._curr_player.prune_paths(potential_paths)
-            is_capture_move = len(valid_paths[0]) != 2
+        is_capture_move = len(valid_paths[0]) != 2
         for path in valid_paths:
             if is_capture_move:
                 start_pos, opp_pos, end_pos, *_ = path
