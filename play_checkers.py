@@ -186,7 +186,7 @@ class CheckerSprite(pygame.sprite.Sprite):
     @pos.setter
     def pos(self, new_pos):
         self._pos = new_pos
-        promotion_row = 0 if self._color == 'black' else 7
+        promotion_row = 0 if self._color == "black" else 7
         curr_row = self._pos.imag
         if curr_row == promotion_row:
             self.promote()
@@ -208,7 +208,7 @@ class CheckerSprite(pygame.sprite.Sprite):
         self.rect.center = pos
 
     def promote(self):
-        image_path = image_path = f'graphics/{self._color}_king.png'
+        image_path = image_path = f"graphics/{self._color}_king.png"
         self.image = pygame.image.load(image_path)
 
 

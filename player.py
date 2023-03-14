@@ -119,7 +119,7 @@ class Player:
         self.board[start_pos] = "empty"
         self.board[end_pos] = piece
         piece.pos = end_pos
-        if piece.rank == 'man':
+        if piece.rank == "man":
             self.handle_promotion(piece)
 
     def capture_move(self, path, opponent):
@@ -130,15 +130,15 @@ class Player:
         opponent.pieces.remove(opp_piece)
         self.board[opp_pos] = "empty"
         new_path = end_pos, *rest
-        if piece.rank == 'man':
+        if piece.rank == "man":
             self.handle_promotion(piece)
         return new_path
-    
+
     def handle_promotion(self, piece: Piece):
-        promotion_row = 0 if piece.color == 'black' else 7
+        promotion_row = 0 if piece.color == "black" else 7
         curr_row = piece.pos.imag
         if curr_row == promotion_row:
-            piece.rank = 'king'
+            piece.rank = "king"
 
 
 class Direction(Enum):
