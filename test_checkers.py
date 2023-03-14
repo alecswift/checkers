@@ -12,6 +12,11 @@ class TestPlayer(TestCase):
         self.player_1 = Player("black", self.board)
         self.player_2 = Player("white", self.board)
 
+    def tearDown(self):
+        del self.board
+        del self.player_1
+        del self.player_2
+
     def test_potential_path_method_with_initial_board_state(self) -> None:
         expected = set(
             [
