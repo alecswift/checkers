@@ -48,19 +48,24 @@ class Player:
         """
         paths = []
         for piece in self._pieces:
-            pos = piece.pos
-            color = piece.color
-            forward_left = Direction.FORWARD_LEFT.move(pos, color)
-            forward_right = Direction.FORWARD_RIGHT.move(pos, color)
-            # rather than if chain send each direction to a function
-            self.build_path((pos, forward_left), piece, True, paths)
-            self.build_path((pos, forward_right), piece, True, paths)
-            if piece.rank == "king":
-                pass
+            path = (piece.pos,)
+            capture = False
+            self.build_path_1(path, paths, piece, capture)
         return paths
+    
+    def build_path_1(self, path, paths, piece, capture):
+        *_, curr_pos = path
+        forward_left = Direction.FORWARD_LEFT.move(curr_pos, piece.color)
+        forward_right = Direction.FORWARD_RIGHT.move(curr_pos, piece.color)
+        left_path = *path, forward_left
+        right_path = *path, forward_right
+        self.build_path(left_path, piece, capture, paths)
+        self.build_path(right_path, piece, capture, paths)
+        if piece.rank == "king":
+            pass
 
     def build_path(
-        self, curr_path: Path, piece: Piece, first_move: bool, paths: list[Path]
+        self, curr_path: Path, piece: Piece, capture: bool, paths: list[Path]
     ) -> None:
         """
         Recursive function that builds all possible paths from the given first
@@ -71,25 +76,23 @@ class Player:
         next_val = self.board.get(next_pos)
         color = piece.color
         opp_color = "black" if color == "white" else "white"
-        if next_val is None:
-            if 2 < len(curr_path):
-                paths.append((*rest, curr_pos))
-            return
-        if next_val == "empty":
+        if not capture and next_val == "empty":
             paths.append(curr_path)
+            return
+        if not capture and next_val is None:
+            return
+        if capture and next_val == "empty":
+            paths.append((*rest, curr_pos))
+            return
+        if capture and next_val is None:
+            paths.append((*rest, curr_pos))
             return
         if next_val.color == opp_color:
             move = next_pos - curr_pos
             jump = next_pos + move
             if self.board.get(jump) == "empty":
-                forward_left = Direction.FORWARD_LEFT.move(jump, color)
-                forward_right = Direction.FORWARD_RIGHT.move(jump, color)
-                left_path = *curr_path, jump, forward_left
-                right_path = *curr_path, jump, forward_right
-                first_move = False
-                self.build_path(left_path, piece, first_move, paths)
-                self.build_path(right_path, piece, first_move, paths)
-            else:
+                self.build_path_1((*curr_path, jump), paths, piece , True)
+            elif capture:
                 paths.append((*rest, curr_pos))
 
     def prune_paths(self, paths):
