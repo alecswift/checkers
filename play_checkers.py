@@ -58,7 +58,7 @@ class Checkers:
             return
         # add player variable for # 2 player
         if self._capture_path is not None:
-            # change to paths only from the specific piece?
+            # change to retrieving paths: could be mutiple possible future capture paths
             valid_paths = [self._capture_path]
         else:
             potential_paths = self._curr_player.potential_paths()
@@ -82,9 +82,9 @@ class Checkers:
             if is_capture_move and pos_selected:
                 new_path = self._curr_player.capture_move(path, self._next_player)
                 self._current_checker.pos = end_pos
-                # remove opponent checker from sprite group make function in boardimage
                 self._board_image.remove_checker(opp_pos)
-                if 2 < len(new_path):
+                capture_remaining = 2 < len(new_path)
+                if capture_remaining:
                     self._capture_path = new_path
                 else:
                     self._capture_path = None
