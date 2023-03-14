@@ -31,9 +31,7 @@ class TestPlayer(TestCase):
         self.player_1.no_capture_move(5j, 1 + 4j)
         self.player_2.no_capture_move(3 + 2j, 2 + 3j)
         expected = set([(1 + 4j, 2 + 3j, 3 + 2j)])
-        potential_paths = self.player_1.potential_paths()
-        actual_output = set(self.player_1.prune_paths(potential_paths))
-        self.assertEqual(expected, actual_output)
+        self.prune_test_helper(expected)
 
     def test_prune_paths_method_with_double_capture(self):
         self.player_1.no_capture_move(5j, 1+4j)
@@ -43,9 +41,7 @@ class TestPlayer(TestCase):
         self.player_1.no_capture_move(1+6j, 5j)
         self.player_2.no_capture_move(4+3j, 3+4j)
         expected = {(2+5j, 3+4j,4+3j,5+2j,6+1j)}
-        potential_paths = self.player_1.potential_paths()
-        actual_output = set(self.player_1.prune_paths(potential_paths))
-        self.assertEqual(expected, actual_output)
+        self.prune_test_helper(expected)
 
     def test_prune_paths_method_with_double_capture_2(self):
         self.player_1.no_capture_move(5j, 1+4j)
@@ -57,6 +53,9 @@ class TestPlayer(TestCase):
         self.player_1.no_capture_move(7j, 1+6j)
         self.player_2.no_capture_move(3+2j, 2+3j)
         expected = {(1+4j, 2+3j, 3+2j,4+1j,5+0j)}
+        self.prune_test_helper(expected)
+
+    def prune_test_helper(self, expected):
         potential_paths = self.player_1.potential_paths()
         actual_output = set(self.player_1.prune_paths(potential_paths))
         self.assertEqual(expected, actual_output)

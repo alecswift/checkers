@@ -58,7 +58,7 @@ class Checkers:
             return
         # add player variable for # 2 player
         if self._capture_path is not None:
-            # change to retrieving paths: could be mutiple possible future capture paths
+            # change to retrieving paths: could be mutiple possible future capture paths?
             valid_paths = [self._capture_path]
         else:
             potential_paths = self._curr_player.potential_paths()
