@@ -1,6 +1,6 @@
 from __future__ import annotations
 from enum import Enum
-from board import Board, Checker
+from board import Board, Piece
 
 Pos = complex
 Path = tuple[complex]
@@ -15,13 +15,13 @@ class Player:
     def __init__(self, checker_color: str, board: Board):
         self._color = checker_color
         self._board = board
-        self._pieces: list[Checker] = set()
+        self._pieces: list[Piece] = set()
         self.init_pieces()
 
     def init_pieces(self) -> None:
         """Adds the players pieces of the appropriate color to the pieces data member"""
         for piece in self.board.values():
-            is_player_piece = isinstance(piece, Checker) and self._color == piece.color
+            is_player_piece = isinstance(piece, Piece) and self._color == piece.color
             if is_player_piece:
                 self._pieces.add(piece)
 
@@ -60,7 +60,7 @@ class Player:
         return paths
 
     def build_path(
-        self, curr_path: Path, piece: Checker, first_move: bool, paths: list[Path]
+        self, curr_path: Path, piece: Piece, first_move: bool, paths: list[Path]
     ) -> None:
         """
         Recursive function that builds all possible paths from the given first
@@ -104,9 +104,9 @@ class Player:
         self.no_capture_move(start_pos, end_pos)
         opp_piece = self.board[opp_pos]
         opponent.pieces.remove(opp_piece)
-        self._board.checkers.remove(opp_piece)
         self.board[opp_pos] = 'empty'
-        return rest
+        new_path = end_pos, *rest
+        return new_path
 
 class Direction(Enum):
     """Represents all the directions a checker piece can move"""
