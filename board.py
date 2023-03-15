@@ -1,26 +1,33 @@
 from __future__ import annotations
 from itertools import product
-import pygame
-
-
-def main():
-    pass
-
+from typing import Optional
 
 Pos = complex
-Path = tuple[complex]
 
+class Piece:
+    """
+    Represents a piece in a checker game. Utilized as a struct so that
+    when a piece is promoted or moved the piece changes in both the
+    player pieces data member and the Checkers board data member
+    """
+
+    def __init__(self, pos: Pos, color: str):
+        self.pos = pos
+        self.color = color
+        self.rank: str = "man"
+
+BoardDict = dict[complex, str | Piece | None]
 
 class Board:
     """Represents a game of checkers between two players
     objects with the checker board as a data member"""
 
     def __init__(self):
-        self._board: dict[str, str] = {}  # position: status
+        self._board: BoardDict = {}  # position: status
         self.init_board()
 
     @property
-    def board(self) -> dict[str, str]:
+    def board(self) -> BoardDict:
         """Returns the board data member"""
         return self._board
 
@@ -37,22 +44,22 @@ class Board:
             else:
                 self._board[coord] = Piece(coord, "black")
 
-    def board_array(self):
+    def board_array(self) -> list[list[Optional[str]]]:
         """Returns the checker board in the form of an array"""
         board_array = [[None] * 8 for _ in range(8)]
         for pos, piece in self._board.items():
-            if piece not in (None, "empty"):
+            if isinstance(piece, Piece):
                 pos = piece.pos
                 x_coord, y_coord = int(pos.real), int(pos.imag)
                 val = piece.color
                 board_array[y_coord][x_coord] = val
         return board_array
 
-    def print_board(self):
+    def print_board(self) -> None:
         """Prints the current checker board as an array"""
         print(self.board_array())
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Returns the string version of the checker board for debugging"""
         board_array = self.board_array()
         board_str = ["  "]
@@ -70,20 +77,3 @@ class Board:
                     board_str.append("| b")
             board_str.append("|\n")
         return "".join(board_str)
-
-
-class Piece:
-    """
-    Represents a piece in a checker game. Utilized as a struct so that
-    when a piece is promoted or moved the piece changes in both the
-    player pieces data member and the Checkers board data member
-    """
-
-    def __init__(self, pos: Pos, color):
-        self.pos = pos
-        self.color = color
-        self.rank = "man"
-
-
-if __name__ == "__main__":
-    main()
