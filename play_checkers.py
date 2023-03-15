@@ -54,7 +54,7 @@ class Checkers:
     def on_event(self, event) -> None:
         """Event actions for checkers"""
         if event.type == pygame.QUIT:
-            self._running = False
+            self.on_cleanup()
         if event.type == pygame.MOUSEBUTTONUP:
             self._player_input.mouse_button_up(self._board.board, self._board_image)
 
@@ -64,7 +64,7 @@ class Checkers:
         quit the game if a player won
         """
         self._player_input.mouse_button_down(self._board_image)
-        self._running = not self._player_input.game_won(self._screen)
+        self.game_won()
 
     def on_render(self) -> None:
         """Render the game board and checker pieces"""
@@ -89,6 +89,22 @@ class Checkers:
             self.on_loop()
             self.on_render()
         self.on_cleanup()
+
+    def game_won(self) -> bool:
+        """
+        Returns whether or not a player has won the game based on the number
+        of valid paths of the opponent player
+        """
+        paths = self._player_input.curr_player.potential_paths()
+        if not paths:
+            self.on_render()
+            sleep(2)
+            color = self._player_input.next_player.color
+            win_surface = pygame.image.load(f"graphics/{color}win.png").convert_alpha()
+            self._screen.blit(win_surface, (0, 0))
+            pygame.display.update()
+            sleep(5)
+            self.on_cleanup()
 
 
 class BoardImage:
@@ -193,6 +209,14 @@ class PlayerInput:
     def current_checker(self, checker: CheckerSprite) -> None:
         self._current_checker = checker
 
+    @property
+    def curr_player(self) -> Player:
+        return self._curr_player
+
+    @property
+    def next_player(self) -> Player:
+        return self._next_player
+
     def mouse_button_down(self, board_image: BoardImage) -> None:
         """
         Selects a checker if the player right clicks a checker sprite with
@@ -265,22 +289,6 @@ class PlayerInput:
         Represents a change in turn. Switches the current player with the next player
         """
         self._curr_player, self._next_player = self._next_player, self._curr_player
-
-    def game_won(self, screen) -> bool:
-        """
-        Returns whether or not a player has won the game based on the number
-        of valid paths of the opponent player
-        """
-        paths = self._curr_player.potential_paths()
-        if not paths:
-            sleep(2)
-            color = self._next_player.color
-            win_surface = pygame.image.load(f"graphics/{color}win.png").convert_alpha()
-            screen.blit(win_surface, (0, 0))
-            pygame.display.update()
-            sleep(5)
-            return True
-        return False
 
 
 def convert_to_screen_pos(pos: complex, adder: int = 0) -> tuple[int, int]:
