@@ -4,6 +4,7 @@ from board import Board, Piece, Pos, BoardDict
 
 Path = tuple[complex, ...]
 
+
 class Player:
     """
     Represents a player in a game of checkers with the

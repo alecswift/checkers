@@ -4,6 +4,7 @@ from typing import Optional
 
 Pos = complex
 
+
 class Piece:
     """
     Represents a piece in a checker game. Utilized as a struct so that
@@ -16,7 +17,9 @@ class Piece:
         self.color = color
         self.rank: str = "man"
 
+
 BoardDict = dict[complex, str | Piece | None]
+
 
 class Board:
     """Represents a game of checkers between two players

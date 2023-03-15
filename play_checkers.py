@@ -21,6 +21,7 @@ class Checkers:
     Represents a game of checkers utilizing pygame for UI and a game loop:
     input, update, render
     """
+
     def __init__(self):
         self._running: bool = True
         self._screen = None
@@ -32,7 +33,7 @@ class Checkers:
 
     def on_init(self) -> None:
         """
-        Initialize the game and data members including the screen, 
+        Initialize the game and data members including the screen,
         caption, board, board image, player input, and running
         """
         pygame.init()
@@ -58,7 +59,7 @@ class Checkers:
 
     def on_loop(self) -> None:
         """
-        Make a checker move if the player right clicks the mouse of a piece 
+        Make a checker move if the player right clicks the mouse of a piece
         quit the game if a player won
         """
         self._player_input.mouse_button_down(self._board_image)
@@ -76,7 +77,6 @@ class Checkers:
         pygame.quit()
         exit()
 
-
     def on_execute(self) -> None:
         """Game loop: input, update, render"""
         if self.on_init() == False:
@@ -89,8 +89,10 @@ class Checkers:
             self.on_render()
         self.on_cleanup()
 
+
 class BoardImage:
     """Represents the image of a checkerboard"""
+
     def __init__(self, surface, checkers):
         self._checkers = checkers  # position: CheckerSprite
         self._surface = surface
@@ -124,8 +126,10 @@ class BoardImage:
                 checker.kill()
                 return
 
+
 class CheckerSprite(pygame.sprite.Sprite):
     """Represents a checker sprite"""
+
     def __init__(self, pos: Pos, color: str):
         super().__init__()
         image_path = f"graphics/{color}_piece.png"
@@ -173,6 +177,7 @@ class PlayerInput:
     utilizes the current player, next player, current checker, and if there
     was a capture on the last move to make these change
     """
+
     def __init__(self, player_1: Player, player_2: Player):
         self._curr_player = player_1
         self._next_player = player_2
