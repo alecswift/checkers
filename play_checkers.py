@@ -1,5 +1,6 @@
 # to do
 # game logic
+#   handle promotions directly after capturing
 #   add checker layering
 #   possible extra refactoring of mouse button up method
 #   add tests: atleast 10
