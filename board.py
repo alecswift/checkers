@@ -65,19 +65,9 @@ class Board:
                 if val is None:
                     board_str.append("|  ")
                 elif "white" in val:
-                    if "Triple_King" in val:
-                        board_str.append("|WT")
-                    elif "king" in val:
-                        board_str.append("| W")
-                    else:
-                        board_str.append("| w")
+                    board_str.append("| w")
                 else:
-                    if "Triple_King" in val:
-                        board_str.append("|BT")
-                    elif "king" in val:
-                        board_str.append("| B")
-                    else:
-                        board_str.append("| b")
+                    board_str.append("| b")
             board_str.append("|\n")
         return "".join(board_str)
 
