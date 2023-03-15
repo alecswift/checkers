@@ -1,6 +1,6 @@
 # to do
 # game logic
-#   improve readability of mouse button up method
+#   possible extra refactoring of mouse button up method
 #   add tests: atleast 10
 # formatting
 #   doc strings
@@ -22,10 +22,7 @@ class Checkers:
         self._caption = None
         self._board_image = None
         self._board = None
-        self._curr_player = None
-        self._next_player = None
-        self._current_checker = None
-        self._capture_path = None
+        self._player_input = None
 
     def on_init(self):
         pygame.init()
@@ -37,89 +34,20 @@ class Checkers:
         self._board_image = BoardImage(board_surface, pygame.sprite.Group())
         self._board_image.set_checkers(self._board.board)
 
-        self._curr_player = Player("black", self._board)
-        self._next_player = Player("white", self._board)
+        player_1 = Player("black", self._board)
+        player_2 = Player("white", self._board)
+        self._player_input = PlayerInput(player_1, player_2)
         self._running = True
 
     def on_event(self, event):
         if event.type == pygame.QUIT:
             self._running = False
         if event.type == pygame.MOUSEBUTTONUP:
-            self.mouse_button_up()
-
-    def mouse_button_up(self) -> None:
-        # improve readability of the logic here with
-        # functions and readable bools
-        # create valid paths is on_loop method for current player? possibly to much work
-        # every loop so maybe no
-        if self._current_checker is None:
-            return
-        # add player variable for # 2 player
-        if self._capture_path is not None:
-            # change to retrieving paths: could be mutiple possible future capture paths?
-            paths = []
-            piece = self._board.board[self._capture_path]
-            self._curr_player.next_move((self._capture_path,), paths, piece, False)
-            valid_paths = self._curr_player.prune_paths(paths)
-        else:
-            potential_paths = self._curr_player.potential_paths()
-            valid_paths = self._curr_player.prune_paths(potential_paths)
-        is_capture_move = len(valid_paths[0]) != 2
-
-        for path in valid_paths:
-            if is_capture_move:
-                start_pos, opp_pos, end_pos, *_ = path
-            else:
-                start_pos, end_pos = path
-            if self._current_checker.pos != start_pos:
-                continue
-
-            # middle of end path square
-            screen_target = convert_to_screen_pos(end_pos, 30.25)
-            pos_selected = self._current_checker.rect.collidepoint(screen_target)
-            if not is_capture_move and pos_selected:
-                self._curr_player.no_capture_move(start_pos, end_pos)
-                self._current_checker.pos = end_pos
-                self.switch_player()
-            if is_capture_move and pos_selected:
-                new_path = self._curr_player.capture_move(path, self._next_player)
-                self._current_checker.pos = end_pos
-                self._board_image.remove_checker(opp_pos)
-                capture_remaining = 2 < len(new_path)
-                if capture_remaining:
-                    self._capture_path = end_pos
-                else:
-                    self._capture_path = None
-                    self.switch_player()
-        self._current_checker.update()
-        self._current_checker = None
-
-    def switch_player(self):
-        self._curr_player, self._next_player = self._next_player, self._curr_player
-
-    def on_input(self):
-        mouse_pos = pygame.mouse.get_pos()
-        if self._current_checker is not None:
-            mouse_pressed, *_ = pygame.mouse.get_pressed()
-            if self._current_checker.rect.collidepoint(mouse_pos) and mouse_pressed:
-                self._current_checker.update_from_mouse()
-        else:
-            for checker in self._board_image.checkers:
-                mouse_pressed, *_ = pygame.mouse.get_pressed()
-                if checker.rect.collidepoint(mouse_pos) and mouse_pressed:
-                    self._current_checker = checker
-        return self._current_checker
+            self._player_input.mouse_button_up(self._board.board, self._board_image)
 
     def on_loop(self):
-        paths = self._curr_player.potential_paths()
-        if not paths:
-            sleep(2)
-            color = self._next_player.color
-            win_surface = pygame.image.load(f"graphics/{color}win.png").convert_alpha()
-            self._screen.blit(win_surface, (0, 0))
-            pygame.display.update()
-            sleep(5)
-            self._running = False
+        self._player_input.mouse_button_down(self._board_image)
+        self._running = not self._player_input.game_won(self._screen)
 
     def on_render(self):
         self._board_image.display_board(self._screen)
@@ -136,10 +64,98 @@ class Checkers:
         while self._running:
             for event in pygame.event.get():
                 self.on_event(event)
-            self.on_input()
             self.on_loop()
             self.on_render()
         self.on_cleanup()
+
+
+class PlayerInput:
+    def __init__(self, player_1, player_2):
+        self._curr_player = player_1
+        self._next_player = player_2
+        self._current_checker = None
+        self._capture_last_move = None
+
+    @property
+    def current_checker(self):
+        return self._current_checker
+
+    @current_checker.setter
+    def current_checker(self, checker):
+        self._current_checker = checker
+
+    def mouse_button_down(self, board_image):
+        mouse_pos = pygame.mouse.get_pos()
+        if self._current_checker is not None:
+            mouse_pressed, *_ = pygame.mouse.get_pressed()
+            if self._current_checker.rect.collidepoint(mouse_pos) and mouse_pressed:
+                self._current_checker.update_from_mouse()
+        else:
+            for checker in board_image.checkers:
+                mouse_pressed, *_ = pygame.mouse.get_pressed()
+                if checker.rect.collidepoint(mouse_pos) and mouse_pressed:
+                    self._current_checker = checker
+
+    def mouse_button_up(self, board, board_image):
+        # Possibly change to finding valid paths for the specific piece that the 
+        # player presses on rather than looping through all paths
+        if self._current_checker is None:
+            return
+
+        valid_paths = self.build_valid_paths(board)
+        is_capture_move = len(valid_paths[0]) != 2
+        for path in valid_paths:
+            if is_capture_move:
+                start_pos, opp_pos, end_pos, *_ = path
+            else:
+                start_pos, end_pos = path
+            if self._current_checker.pos != start_pos:
+                continue
+
+            mid_end_pos_square = convert_to_screen_pos(end_pos, 30.25)
+            pos_selected = self._current_checker.rect.collidepoint(mid_end_pos_square)
+            if not is_capture_move and pos_selected:
+                self._curr_player.no_capture_move(start_pos, end_pos)
+                self._current_checker.pos = end_pos
+                self.switch_player()
+            if is_capture_move and pos_selected:
+                new_path = self._curr_player.capture_move(path, self._next_player)
+                self._current_checker.pos = end_pos
+                board_image.remove_checker(opp_pos)
+                capture_remaining = 2 < len(new_path)
+                if capture_remaining:
+                    self._capture_last_move = end_pos
+                else:
+                    self._capture_last_move = None
+                    self.switch_player()
+        self._current_checker.update()
+        self._current_checker = None
+
+    def build_valid_paths(self, board):
+        if self._capture_last_move is not None:
+            paths = []
+            piece = board[self._capture_last_move]
+            self._curr_player.next_move((self._capture_last_move,), paths, piece, False)
+            valid_paths = self._curr_player.prune_paths(paths)
+        else:
+            potential_paths = self._curr_player.potential_paths()
+            valid_paths = self._curr_player.prune_paths(potential_paths)
+        return valid_paths
+
+    def switch_player(self):
+        self._curr_player, self._next_player = self._next_player, self._curr_player
+
+    def game_won(self, screen):
+        paths = self._curr_player.potential_paths()
+        if not paths:
+            sleep(2)
+            color = self._next_player.color
+            win_surface = pygame.image.load(f"graphics/{color}win.png").convert_alpha()
+            screen.blit(win_surface, (0, 0))
+            pygame.display.update()
+            sleep(5)
+            return True
+        return False
 
 
 class BoardImage:
