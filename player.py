@@ -26,20 +26,16 @@ class Player:
                 self._pieces.add(piece)
 
     @property
-    def pieces(self) -> list[Piece]:
-        return self._pieces
+    def color(self) -> str:
+        return self._color
 
     @property
     def board(self) -> dict:
         return self._board.board
-
+    
     @property
-    def captured_pieces(self) -> int:
-        """
-        returns the number of opponent pieces that
-        the player has captured
-        """
-        return self._captured_pieces_count
+    def pieces(self) -> list[Piece]:
+        return self._pieces
 
     def potential_paths(self) -> list[Path]:
         """

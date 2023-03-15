@@ -1,9 +1,7 @@
 # to do
 # game logic
 #   improve readability of mouse button up method
-#   possibly add backend logic for switching places
-#   handle game winning conditions (if no valid paths for any pieces game lost)
-#   fully test a check for bugs in capture/path system a
+#   add tests: atleast 10
 # formatting
 #   doc strings
 #   type hinting for function calls
@@ -11,7 +9,7 @@
 
 from itertools import product
 import pygame
-from sys import exit
+from time import sleep
 from board import Board, Piece
 from player import Player
 
@@ -113,7 +111,15 @@ class Checkers:
         return self._current_checker
 
     def on_loop(self):
-        pass
+        paths = self._curr_player.potential_paths()
+        if not paths:
+            sleep(2)
+            color = self._next_player.color
+            win_surface = pygame.image.load(f"graphics/{color}win.png").convert_alpha()
+            self._screen.blit(win_surface, (0, 0))
+            pygame.display.update()
+            sleep(5)
+            self._running = False
 
     def on_render(self):
         self._board_image.display_board(self._screen)
@@ -168,8 +174,6 @@ class BoardImage:
 
 
 class CheckerSprite(pygame.sprite.Sprite):
-    """moves a clenched fist on the screen, following the mouse"""
-
     def __init__(self, pos, color):
         super().__init__()
         image_path = f"graphics/{color}_piece.png"
