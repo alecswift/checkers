@@ -3,7 +3,7 @@
 ## About
 I developed a checkers game in python, with pygame for the user interface, to practice object oriented programming and utilize algorithms for a practical purpose. Currently you can play checkers in the terminal or with your favorite IDE. I chose checkers as it's an easily expandable project. I plan to code different levels of AI, deploy the project as an app on the internet, support 1v1 play over a network, and use what I've learned to develop a chess game.
 
-![](./graphics/capture.gif)
+<center> ![](./graphics/capture.gif) <center>
 
 ## Rules
 
