@@ -1,12 +1,9 @@
 # to do
 # game logic
-#   handle promotions directly after capturing
+#   add AI minimax algo
 #   add checker layering
-#   possible extra refactoring of mouse button up method
 #   add tests: atleast 10
-#   fix quitting game problem
-# formatting
-#   readme
+#   refactor calls of cleanup method
 
 from itertools import product
 import pygame
