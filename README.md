@@ -1,14 +1,13 @@
 <center> <h1>Checkers</h1> </center>
 
 ## About
-I developed a checkers game in python, with pygame for the user interface, to practice object oriented programming and utilize algorithms for a practical purpose. Currently you can play checkers in the terminal or with your favorite IDE. I chose checkers as it's an easily expandable project. I plan to code different levels of AI, deploy the project as an app on the internet, support 1v1 play over a network, and use what I've learned to develop a chess game.
+I developed a checkers game in python, with pygame for the user interface, to practice object oriented programming and utilize algorithms for a practical purpose. Currently you can play checkers in the terminal or with your favorite IDE. I chose checkers as it's an easily expandable project. I plan to code different levels of AI, deploy the project as an app on the internet, support 1v1 play over a network, create a database to store game results, and use what I've learned to develop a chess game.
 
 ![](./graphics/capture.gif)
 
 ## Rules
 
-I used the classic checkers rules. Each piece can move exactly one diagonal if there is no capture. If there is a capture available the player must make the move that captures the most pieces. Pieces
-are promoted to kings when they cross the entire board and then can move diagonally forward and backward. The game ends when one of the players has no available moves. See [here](https://www.fgbradleys.com/rules/Checkers.pdf) for the detailed rules.
+I used the classic checkers rules. Each piece can move exactly one diagonal if there is no capture. If there is a capture available the player must make the move that captures the most pieces. Pieces are promoted to kings when they cross the entire board and then can move diagonally forward and backward. The game ends when one of the players has no available moves. See [here](https://www.fgbradleys.com/rules/Checkers.pdf) for the detailed rules.
 
 ## Usage
 
