@@ -60,16 +60,16 @@ class Player:
             *_, curr_pos = path
         else:
             *_, prev_pos, curr_pos = path
-        forward_left = Direction.FORWARD_LEFT.move(curr_pos, piece.color)
-        forward_right = Direction.FORWARD_RIGHT.move(curr_pos, piece.color)
+        forward_left = Direction.FORWARD_LEFT.move(curr_pos, piece.color, "black")
+        forward_right = Direction.FORWARD_RIGHT.move(curr_pos, piece.color, "black")
         next_positions = [forward_left, forward_right]
         if piece.rank != "king":
             for next_position in next_positions:
                 next_path = *path, next_position
                 self.build_path(next_path, piece, capture, paths)
         else:
-            back_left = Direction.BACK_LEFT.move(curr_pos, piece.color)
-            back_right = Direction.BACK_RIGHT.move(curr_pos, piece.color)
+            back_left = Direction.BACK_LEFT.move(curr_pos, piece.color, "black")
+            back_right = Direction.BACK_RIGHT.move(curr_pos, piece.color, "black")
             next_positions.extend([back_left, back_right])
             for next_position in next_positions:
                 if prev_pos == next_position:
@@ -173,8 +173,8 @@ class Direction(Enum):
     BACK_LEFT = (-1 + 1j, 1 - 1j)
     BACK_RIGHT = (1 + 1j, -1 - 1j)
 
-    def move(self, pos: Pos, color: str) -> complex:
+    def move(self, pos: Pos, color: str, color_type: str | int) -> complex:
         """Move a checker piece of a given position and color"""
-        idx = 0 if color == "black" else 1
+        idx = 0 if color == color_type else 1
         move = self.value[idx]
         return pos + move
