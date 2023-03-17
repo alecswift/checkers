@@ -92,7 +92,7 @@ class Checkers:
         Returns whether or not a player has won the game based on the number
         of valid paths of the opponent player
         """
-        paths = self._player_input.curr_player.potential_paths()
+        paths = self._player_input.curr_player.valid_paths()
         if not paths:
             self.on_render()
             sleep(2)
@@ -277,8 +277,7 @@ class PlayerInput:
             self._curr_player.next_move((self._capture_last_move,), paths, piece, False)
             valid_paths = self._curr_player.prune_paths(paths)
         else:
-            potential_paths = self._curr_player.potential_paths()
-            valid_paths = self._curr_player.prune_paths(potential_paths)
+            valid_paths = self._curr_player.valid_paths()
         return valid_paths
 
     def switch_player(self) -> None:

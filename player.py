@@ -35,7 +35,7 @@ class Player:
     def pieces(self) -> set[Piece]:
         return self._pieces
 
-    def potential_paths(self) -> list[Path]:
+    def valid_paths(self) -> list[Path]:
         """
         Returns all possible paths that a given player can take with
         their current pieces
@@ -45,6 +45,7 @@ class Player:
             path = (piece.pos,)
             capture = False
             self.next_move(path, paths, piece, capture)
+        paths = self.prune_paths(paths)
         return paths
 
     def next_move(
@@ -113,8 +114,10 @@ class Player:
         Removes all invalid paths from the given paths list. A path is invalid if
         there is another path in the list with more captures
         """
-        max_length = max(len(path) for path in paths)
-        return [path for path in paths if len(path) == max_length]
+        if paths:
+            max_length = max(len(path) for path in paths)
+            return [path for path in paths if len(path) == max_length]
+        return paths
 
     def no_capture_move(self, start_pos: complex, end_pos: complex) -> None:
         """
