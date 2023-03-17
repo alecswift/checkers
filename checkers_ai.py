@@ -3,6 +3,7 @@ from player import Path, Direction
 
 BoardState = tuple[tuple[complex, int]]
 
+
 def init_state(board: BoardDict) -> BoardState:
     state = []
     for pos, val in board.items():
@@ -18,37 +19,39 @@ def init_state(board: BoardDict) -> BoardState:
             state.append((pos, -0))
     return tuple(state)
 
+
 def init_borders():
     """Return a set of border coordinates for a checkers board"""
     borders = set()
     borders_nums = [-1, 8]
     for num1 in borders_nums:
-        for num2 in range(0,7):
+        for num2 in range(0, 7):
             borders.add(complex(num1, num2))
             borders.add(complex(num2, num1))
     return borders
 
+
 def minimax(state, depth: int, max_player: bool) -> Path:
     if depth == 0 or game_won(state):
-        return evaluate(state) # return move as well?
-    
+        return evaluate(state)  # return move as well?
+
     if max_player:
-        max_eval = float(-'inf')
+        max_eval = float(-"inf")
         for move in valid_moves(state):
             state = make_move(state)
             curr_eval = minimax(state, depth - 1, False)
             max_eval = max(max_eval, curr_eval)
         return max_eval
     else:
-        min_eval = float('inf')
+        min_eval = float("inf")
         for move in valid_moves(state):
             state = make_move(move, state)
             curr_eval = minimax(state, depth - 1, True)
             min_eval = min(max_eval, curr_eval)
         return min_eval
-    
-class State:
 
+
+class State:
     def __init__(self, board_state, borders):
         self._board_state = board_state
         self._borders = borders
@@ -62,24 +65,27 @@ class State:
         color = 0 if max_player else 1
         for pos, piece in self._board_state:
             if piece % 2 == color:
-                path = (pos, )
+                path = (
+                    piece,
+                    pos,
+                )
                 capture = False
-                self.next_move(path, piece, capture)
+                self.next_move(path, capture)
         self.prune_paths()
 
-    def next_move(self, path: Path, piece: int, capture: bool) -> None:
+    def next_move(self, path: Path, capture: bool) -> None:
         if not capture:
             prev_pos = None
-            *_, curr_pos = path
+            piece, curr_pos = path
         else:
-            *_, prev_pos, curr_pos = path
+            *_, piece, prev_pos, curr_pos = path
         forward_left = Direction.FORWARD_LEFT.move(curr_pos, piece % 2, 1)
         forward_right = Direction.FORWARD_RIGHT.move(curr_pos, piece % 2, 1)
         next_positions = [forward_left, forward_right]
         if piece <= 2:
             for next_position in next_positions:
                 next_path = *path, next_position
-                self.build_path(next_path, piece, capture)
+                self.build_path(next_path, capture)
         else:
             back_left = Direction.BACK_LEFT.move(curr_pos, piece % 2, 1)
             back_right = Direction.BACK_RIGHT.move(curr_pos, piece % 2, 1)
@@ -88,10 +94,10 @@ class State:
                 if prev_pos == next_position:
                     continue
                 next_path = *path, next_position
-                self.build_path(next_path, piece % 2, capture)
+                self.build_path(next_path, capture)
 
-    def build_path(self, path: Path, piece: int, capture: bool) -> None:
-        *rest, curr_pos, next_pos = path
+    def build_path(self, path: Path, capture: bool) -> None:
+        piece, *rest, curr_pos, next_pos = path
         for pos, val in self._board_state:
             if pos == next_pos:
                 next_val = val
@@ -124,11 +130,29 @@ class State:
             return [path for path in self._paths if len(path) == max_length]
         return self._paths
 
+
 def make_move(move: Path, state: State):
-    pass
+    if len(move) == 3:
+        piece, start_pos, end_pos = move
+        remove_start = tuple(
+            (pos, val) if pos != start_pos else (pos, 0) for pos, val in state
+        )
+        new_state = remove_start, (end_pos, piece)
+    else:
+        piece, *path = move
+        opp_pos = set([pos for idx, pos in enumerate(path) if idx % 2 == 1])
+        start_pos, *_, end_pos = path
+        opp_pos.add(start_pos)
+        remove = tuple(
+            (pos, 0) if pos in opp_pos else (pos, val) for pos, val in state
+        )
+        new_state = remove, (end_pos, piece)
+    return new_state
+
 
 def game_won(state: State) -> bool:
-    pass
+    return False
+
 
 def evaluate(state: State) -> int:
     pass
