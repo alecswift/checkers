@@ -59,13 +59,13 @@ class TestCheckersAi(unittest.TestCase):
         state.valid_moves(False)
         expected = set(
             [
-                (5j, 1 + 4j),
-                (2 + 5j, 1 + 4j),
-                (2 + 5j, 3 + 4j),
-                (4 + 5j, 3 + 4j),
-                (4 + 5j, 5 + 4j),
-                (6 + 5j, 5 + 4j),
-                (6 + 5j, 7 + 4j),
+                (1, 5j, 1 + 4j),
+                (1, 2 + 5j, 1 + 4j),
+                (1, 2 + 5j, 3 + 4j),
+                (1, 4 + 5j, 3 + 4j),
+                (1, 4 + 5j, 5 + 4j),
+                (1, 6 + 5j, 5 + 4j),
+                (1, 6 + 5j, 7 + 4j),
             ]
         )
         actual_output = set(state.paths)
