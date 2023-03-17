@@ -34,6 +34,14 @@ class TestCheckersAi(unittest.TestCase):
             (2+7j, 1,),
             (4+7j, 1,),
             (6+7j, 1,),
+            (0+3j, None,),
+            (2+3j, None,),
+            (4+3j, None,),
+            (6+3j, None,),
+            (1+4j, None,),
+            (3+4j, None,),
+            (5+4j, None,),
+            (7+4j, None,),
         ))
         self.assertEqual(actual_output, expected)
 
