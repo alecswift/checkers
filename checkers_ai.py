@@ -4,7 +4,7 @@ State = tuple[tuple[complex, int]]
 
 def init_state(board: BoardDict) -> State:
     state = []
-    for val in board:
+    for val in board.values():
         if isinstance(val, Piece):
             if val.color == "black":
                 color = 1
