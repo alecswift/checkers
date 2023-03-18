@@ -16,7 +16,7 @@ def init_state(board: BoardDict) -> BoardState:
                 color += 2
             state.append((val.pos, color))
         elif val == "empty":
-            state.append((pos, -0))
+            state.append((pos, 0))
     return tuple(state)
 
 
@@ -55,7 +55,7 @@ class State:
     def __init__(self, board_state, borders):
         self._board_state = board_state
         self._borders = borders
-        self._paths = []
+        self._paths = set()
 
     @property
     def paths(self):
@@ -78,7 +78,7 @@ class State:
             prev_pos = None
             piece, curr_pos = path
         else:
-            *_, piece, prev_pos, curr_pos = path
+            piece, *_, prev_pos, curr_pos = path
         forward_left = Direction.FORWARD_LEFT.move(curr_pos, piece % 2, 1)
         forward_right = Direction.FORWARD_RIGHT.move(curr_pos, piece % 2, 1)
         next_positions = [forward_left, forward_right]
@@ -97,28 +97,34 @@ class State:
                 self.build_path(next_path, capture)
 
     def build_path(self, path: Path, capture: bool) -> None:
+        # Check if I really need the piece in the path
         piece, *rest, curr_pos, next_pos = path
+        next_val = self.search_state(next_pos)
+
+        opp_color = 1 if piece % 2 == 0 else 0
+        if not capture and next_val == 0:
+            self._paths.add(path)
+        elif capture and not next_val:
+            self._paths.add((piece, *rest, curr_pos))
+        elif capture and next_val and next_val % 2 != opp_color:
+            self._paths.add((piece, *rest, curr_pos))
+        elif next_val and next_val % 2 == opp_color:
+            move = next_pos - curr_pos
+            jump = next_pos + move
+            jump_val = self.search_state(jump)
+            if jump_val == 0:
+                self.next_move((*path, jump), True)
+            elif capture:
+                self._paths.add((piece, *rest, curr_pos))
+
+    def search_state(self, next_pos):
         for pos, val in self._board_state:
             if pos == next_pos:
                 next_val = val
                 break
         else:
             next_val = None
-
-        opp_color = 1 if piece % 2 == 0 else 0
-        if not capture and next_val == 0:
-            self._paths.append(path)
-        elif capture and not next_val:
-            self._paths.append((*rest, curr_pos))
-        elif capture and next_val and next_val % 2 != opp_color:
-            self._paths.append((*rest, curr_pos))
-        elif next_val and next_val % 2 == opp_color:
-            move = next_pos - curr_pos
-            jump = next_pos + move
-            if self.board.get(jump) == "empty":
-                self.next_move((*path, jump), piece, True)
-            elif capture:
-                self._paths.append((*rest, curr_pos))
+        return next_val
 
     def prune_paths(self) -> list[Path]:
         """
@@ -127,26 +133,25 @@ class State:
         """
         if self._paths:
             max_length = max(len(path) for path in self._paths)
-            return [path for path in self._paths if len(path) == max_length]
-        return self._paths
+            self._paths = set(path for path in self._paths if len(path) == max_length)
 
 
 def make_move(move: Path, state: State):
     if len(move) == 3:
         piece, start_pos, end_pos = move
-        remove_start = tuple(
-            (pos, val) if pos != start_pos else (pos, 0) for pos, val in state
-        )
-        new_state = remove_start, (end_pos, piece)
+        remove = set([start_pos, end_pos])
+        removed = tuple((pos, val) for pos, val in state if pos not in remove)
+        new_state = *removed, (end_pos, piece), (start_pos, 0)
     else:
         piece, *path = move
         opp_pos = set([pos for idx, pos in enumerate(path) if idx % 2 == 1])
         start_pos, *_, end_pos = path
-        opp_pos.add(start_pos)
-        remove = tuple(
+        removed_opp = tuple(
             (pos, 0) if pos in opp_pos else (pos, val) for pos, val in state
         )
-        new_state = remove, (end_pos, piece)
+        remove = set([start_pos, end_pos])
+        removed = tuple((pos, val) for pos, val in state if pos not in remove)
+        new_state = *removed_opp, (end_pos, piece), (start_pos, 0)
     return new_state
 
 
@@ -156,3 +161,29 @@ def game_won(state: State) -> bool:
 
 def evaluate(state: State) -> int:
     pass
+
+def state_print(state) -> str:
+        """Returns the string version of the checker board for debugging"""
+        board_array = [[None] * 8 for _ in range(8)]
+        for pos, piece in state:
+            if piece:
+                x_coord, y_coord = int(pos.real), int(pos.imag)
+                val = "black" if piece == 1 else "white"
+                board_array[y_coord][x_coord] = val
+
+        board_str = []
+        for num in range(8):
+            board_str.append(f"  {num}")
+        board_str.append("\n")
+        for idx, row in enumerate(board_array):
+            board_str.append(f"{idx} ")
+            for val in row:
+                if val is None:
+                    board_str.append("|  ")
+                elif "white" in val:
+                    board_str.append("| w")
+                else:
+                    board_str.append("| b")
+            board_str.append("|\n")
+        return "".join(board_str)
+
