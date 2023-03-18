@@ -31,22 +31,25 @@ def init_borders():
     return borders
 
 
-def minimax(state, depth: int, max_player: bool) -> Path:
-    if depth == 0 or game_won(state):
+def minimax(state, depth: int, max_player: bool, borders) -> Path:
+    state_obj = State(state, borders)
+    state_obj.valid_moves(state)
+    game_won = not state_obj.paths
+    if depth == 0 or game_won:
         return evaluate(state)  # return move as well?
 
     if max_player:
         max_eval = float(-"inf")
-        for move in valid_moves(state):
-            state = make_move(state)
-            curr_eval = minimax(state, depth - 1, False)
+        for move in state_obj.paths:
+            next_state = make_move(state)
+            curr_eval = minimax(next_state, depth - 1, False)
             max_eval = max(max_eval, curr_eval)
         return max_eval
     else:
         min_eval = float("inf")
-        for move in valid_moves(state):
-            state = make_move(move, state)
-            curr_eval = minimax(state, depth - 1, True)
+        for move in state_obj.paths:
+            next_state = make_move(move, state)
+            curr_eval = minimax(next_state, depth - 1, True)
             min_eval = min(max_eval, curr_eval)
         return min_eval
 
@@ -136,7 +139,7 @@ class State:
             self._paths = set(path for path in self._paths if len(path) == max_length)
 
 
-def make_move(move: Path, state: State):
+def make_move(move: Path, state):
     if len(move) == 3:
         piece, start_pos, end_pos = move
         remove = set([start_pos, end_pos])
@@ -158,41 +161,46 @@ def make_move(move: Path, state: State):
         new_state = *removed_opp, (end_pos, piece), (start_pos, 0)
     return new_state
 
+
 def handle_promotion(row, piece):
     promotion_row = 7 if piece == 2 else 0
     if promotion_row == row:
         return piece + 2
     return piece
 
-def game_won(state: State) -> bool:
-    return False
 
+def evaluate(state) -> int:
+    count_white = 0
+    count_black = 0
+    for _, piece in state:
+        if piece != 0 and piece % 2 == 0:
+            count_white += 1
+        if piece != 0 and piece % 2 == 1:
+            count_black += 1
+    return count_white - count_black
 
-def evaluate(state: State) -> int:
-    pass
 
 def state_print(state) -> str:
-        """Returns the string version of the checker board for debugging"""
-        board_array = [[None] * 8 for _ in range(8)]
-        for pos, piece in state:
-            if piece:
-                x_coord, y_coord = int(pos.real), int(pos.imag)
-                val = "black" if piece == 1 else "white"
-                board_array[y_coord][x_coord] = val
+    """Returns the string version of the checker board for debugging"""
+    board_array = [[None] * 8 for _ in range(8)]
+    for pos, piece in state:
+        if piece:
+            x_coord, y_coord = int(pos.real), int(pos.imag)
+            val = "black" if piece == 1 else "white"
+            board_array[y_coord][x_coord] = val
 
-        board_str = []
-        for num in range(8):
-            board_str.append(f"  {num}")
-        board_str.append("\n")
-        for idx, row in enumerate(board_array):
-            board_str.append(f"{idx} ")
-            for val in row:
-                if val is None:
-                    board_str.append("|  ")
-                elif "white" in val:
-                    board_str.append("| w")
-                else:
-                    board_str.append("| b")
-            board_str.append("|\n")
-        return "".join(board_str)
-
+    board_str = []
+    for num in range(8):
+        board_str.append(f"  {num}")
+    board_str.append("\n")
+    for idx, row in enumerate(board_array):
+        board_str.append(f"{idx} ")
+        for val in row:
+            if val is None:
+                board_str.append("|  ")
+            elif "white" in val:
+                board_str.append("| w")
+            else:
+                board_str.append("| b")
+        board_str.append("|\n")
+    return "".join(board_str)
