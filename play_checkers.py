@@ -1,6 +1,8 @@
 # to do
 # game logic
 #   add AI minimax algo
+#   Create new class paths by combining the player/state/board classes
+#   to refactor
 #   add checker layering
 #   add tests: atleast 10
 #   refactor calls of cleanup method
