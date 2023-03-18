@@ -141,6 +141,8 @@ def make_move(move: Path, state: State):
         piece, start_pos, end_pos = move
         remove = set([start_pos, end_pos])
         removed = tuple((pos, val) for pos, val in state if pos not in remove)
+        if piece <= 2:
+            piece = handle_promotion(end_pos.imag, piece)
         new_state = *removed, (end_pos, piece), (start_pos, 0)
     else:
         piece, *path = move
@@ -151,9 +153,16 @@ def make_move(move: Path, state: State):
         )
         remove = set([start_pos, end_pos])
         removed = tuple((pos, val) for pos, val in state if pos not in remove)
+        if piece <= 2:
+            piece = handle_promotion(end_pos.imag, piece)
         new_state = *removed_opp, (end_pos, piece), (start_pos, 0)
     return new_state
 
+def handle_promotion(row, piece):
+    promotion_row = 7 if piece == 2 else 0
+    if promotion_row == row:
+        return piece + 2
+    return piece
 
 def game_won(state: State) -> bool:
     return False

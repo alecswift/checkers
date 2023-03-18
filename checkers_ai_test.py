@@ -104,7 +104,7 @@ class TestCheckersAi(unittest.TestCase):
         self.valid_paths_helper(state, expected)
 
     def test_valid_paths_with_king_double_capture(self):
-        """state = checkers_ai.make_move((1, 6 + 5j, 7 + 4j), self.initial_state)
+        state = checkers_ai.make_move((1, 6 + 5j, 7 + 4j), self.initial_state)
         state = checkers_ai.make_move((2, 1 + 2j, 2 + 3j), state)
         state = checkers_ai.make_move((1, 5 + 6j, 6 + 5j), state)
         state = checkers_ai.make_move((2, 1j, 1 + 2j), state)
@@ -118,8 +118,8 @@ class TestCheckersAi(unittest.TestCase):
         state = checkers_ai.make_move((2, 1 + 0j, 2 + 1j), state)
         state = checkers_ai.make_move((1, 1j, 1 + 0j), state)  # black piece promoted
         state = checkers_ai.make_move((2, 3 + 2j, 4 + 3j), state)
-        expected = {(1, 1 + 0j, 2 + 1j, 3 + 2j, 4 + 3j, 5 + 4j)}
-        self.valid_paths_helper(state, expected)"""
+        expected = {(3, 1 + 0j, 2 + 1j, 3 + 2j, 4 + 3j, 5 + 4j)}
+        self.valid_paths_helper(state, expected)
 
     def valid_paths_helper(self, state, expected):
         state_obj = checkers_ai.State(state, self.borders)
