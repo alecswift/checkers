@@ -3,6 +3,12 @@ from player import Path, Direction
 
 BoardState = tuple[tuple[complex, int]]
 
+def find_ai_move(board: BoardDict):
+    curr_state = init_state(board)
+    borders = init_borders()
+    best_move = minimax(curr_state, 5, True, borders)[1]
+    return best_move
+
 
 def init_state(board: BoardDict) -> BoardState:
     state = []
@@ -36,22 +42,27 @@ def minimax(state, depth: int, max_player: bool, borders) -> Path:
     state_obj.valid_moves(state)
     game_won = not state_obj.paths
     if depth == 0 or game_won:
-        return evaluate(state)  # return move as well?
+        return evaluate(state), None  # return move as well?
 
+    best_move = None
     if max_player:
-        max_eval = float(-"inf")
+        max_eval = float("-inf")
         for move in state_obj.paths:
-            next_state = make_move(state)
-            curr_eval = minimax(next_state, depth - 1, False)
+            next_state = make_move(move, state)
+            curr_eval = minimax(next_state, depth - 1, False, borders)[0]
             max_eval = max(max_eval, curr_eval)
-        return max_eval
+            if max_eval == curr_eval:
+                best_move = move
+        return max_eval, best_move
     else:
         min_eval = float("inf")
         for move in state_obj.paths:
             next_state = make_move(move, state)
-            curr_eval = minimax(next_state, depth - 1, True)
-            min_eval = min(max_eval, curr_eval)
-        return min_eval
+            curr_eval = minimax(next_state, depth - 1, True, borders)[0]
+            min_eval = min(min_eval, curr_eval)
+            if min_eval == curr_eval:
+                best_move = move
+        return min_eval, best_move
 
 
 class State:
@@ -67,7 +78,7 @@ class State:
     def valid_moves(self, max_player) -> list[Path]:
         color = 0 if max_player else 1
         for pos, piece in self._board_state:
-            if piece % 2 == color:
+            if piece != 0 and piece % 2 == color:
                 path = (
                     piece,
                     pos,

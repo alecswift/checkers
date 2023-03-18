@@ -75,7 +75,6 @@ class TestCheckersAi(unittest.TestCase):
     def test_capture_move(self):
         state = checkers_ai.make_move((1, 5j, 1 + 4j), self.initial_state)
         state = checkers_ai.make_move((2, 3 + 2j, 2 + 3j), state)
-        print(checkers_ai.state_print(state))
         expected = set([(1, 1 + 4j, 2 + 3j, 3 + 2j)])
         self.valid_paths_helper(state, expected)
 

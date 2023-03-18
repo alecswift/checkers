@@ -2,6 +2,7 @@
 # game logic
 #   add AI minimax algo
 #   Create new class paths by combining the player/state/board classes
+#   AI bug: thinks it can capture if there's a friendly piece in front of an opponent piece
 #   to refactor
 #   add checker layering
 #   add tests: atleast 10
@@ -13,6 +14,7 @@ from sys import exit
 from time import sleep
 from typing import Optional
 from board import Board, Piece, BoardDict, Pos
+from checkers_ai import find_ai_move
 from player import Player, Path
 
 
@@ -29,7 +31,7 @@ class Checkers:
         self._caption = None
         self._board_image: Optional[BoardImage] = None
         self._board: Optional[Board] = None
-        self._player_input: Optional[PlayerInput] = None
+        self._player_move: Optional[PlayerMove] = None
 
     def on_init(self) -> None:
         """
@@ -47,7 +49,7 @@ class Checkers:
 
         player_1 = Player("black", self._board)
         player_2 = Player("white", self._board)
-        self._player_input = PlayerInput(player_1, player_2)
+        self._player_move = PlayerMove(player_1, player_2)
         self._running = True
 
     def on_event(self, event) -> None:
@@ -55,14 +57,17 @@ class Checkers:
         if event.type == pygame.QUIT:
             self.on_cleanup()
         if event.type == pygame.MOUSEBUTTONUP:
-            self._player_input.mouse_button_up(self._board.board, self._board_image)
+            self._player_move.mouse_button_up(self._board.board, self._board_image)
 
     def on_loop(self) -> None:
         """
         Make a checker move if the player right clicks the mouse of a piece
         quit the game if a player won
         """
-        self._player_input.mouse_button_down(self._board_image)
+        if self._player_move.curr_player.color == "white":
+            self._player_move.make_ai_move(self._board.board, self._board_image)
+        else:
+            self._player_move.mouse_button_down(self._board_image)
         self.game_won()
 
     def on_render(self) -> None:
@@ -94,11 +99,11 @@ class Checkers:
         Returns whether or not a player has won the game based on the number
         of valid paths of the opponent player
         """
-        paths = self._player_input.curr_player.valid_paths()
+        paths = self._player_move.curr_player.valid_paths()
         if not paths:
             self.on_render()
             sleep(2)
-            color = self._player_input.next_player.color
+            color = self._player_move.next_player.color
             win_surface = pygame.image.load(f"graphics/{color}win.png").convert_alpha()
             self._screen.blit(win_surface, (0, 0))
             pygame.display.update()
@@ -187,7 +192,7 @@ class CheckerSprite(pygame.sprite.Sprite):
         self.image = pygame.image.load(image_path)
 
 
-class PlayerInput:
+class PlayerMove:
     """
     Methods for changing positions of checkers based on player input
     utilizes the current player, next player, current checker, and if there
@@ -281,6 +286,33 @@ class PlayerInput:
         else:
             valid_paths = self._curr_player.valid_paths()
         return valid_paths
+
+    def make_ai_move(self, board: BoardDict, board_image: BoardImage):
+        best_move = find_ai_move(board)
+        if len(best_move) == 3:
+            _, start_pos, end_pos = best_move
+            screen_target = convert_to_screen_pos(start_pos, 30.25)
+            for checker in board_image.checkers:
+                if checker.rect.collidepoint(screen_target):
+                    self._current_checker = checker
+            self._curr_player.no_capture_move(start_pos, end_pos)
+            self._current_checker.pos = end_pos
+            self._current_checker.update()
+        else:
+            _, start_pos, *rest, end_pos = best_move
+            screen_target = convert_to_screen_pos(start_pos, 30.25)
+            for checker in board_image.checkers:
+                if checker.rect.collidepoint(screen_target):
+                    self._current_checker = checker
+            opponent = self._next_player
+            self._curr_player.ai_capture_move((start_pos, *rest, end_pos), opponent)
+            self._current_checker.pos = end_pos
+            self._current_checker.update()
+            for idx, pos in enumerate(rest):
+                if idx % 2 == 0:
+                    board_image.remove_checker(pos)
+        self._current_checker = None
+        self.switch_player()
 
     def switch_player(self) -> None:
         """

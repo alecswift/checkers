@@ -152,6 +152,22 @@ class Player:
         if piece.rank == "man":
             self.handle_promotion(piece)
         return new_path
+    
+    def ai_capture_move(self, path, opponent):
+        start_pos, *rest, end_pos = path
+        piece = self.board[start_pos]
+        assert isinstance(piece, Piece)
+        self.no_capture_move(start_pos, end_pos)
+        for idx, opp_pos in enumerate(rest):
+            if idx % 2 == 0:
+                opp_piece = self.board[opp_pos]
+                assert isinstance(opp_piece, Piece)
+                opponent.pieces.remove(opp_piece)
+                self.board[opp_pos] = "empty"
+        if piece.rank == "man":
+            self.handle_promotion(piece)
+
+
 
     def handle_promotion(self, piece: Piece):
         """Promotes a piece to king if it lands on the row opposite of the start"""
