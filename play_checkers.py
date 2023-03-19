@@ -1,8 +1,7 @@
 # to do
 # game logic
-#   add AI minimax algo
+#   Add delay for AI on double captures so it animates the full move
 #   Create new class paths by combining the player/state/board classes
-#   AI bug: thinks it can capture if there's a friendly piece in front of an opponent piece
 #   to refactor
 #   add checker layering
 #   add tests: atleast 10
