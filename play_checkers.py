@@ -56,18 +56,18 @@ class Checkers:
         """Event actions for checkers"""
         if event.type == pygame.QUIT:
             self.on_cleanup()
+        if self._player_move.curr_player.color == "white":
+            self._player_move.make_ai_move(self._board.board, self._board_image)
         if event.type == pygame.MOUSEBUTTONUP:
             self._player_move.mouse_button_up(self._board.board, self._board_image)
+            
 
     def on_loop(self) -> None:
         """
         Make a checker move if the player right clicks the mouse of a piece
         quit the game if a player won
         """
-        if self._player_move.curr_player.color == "white":
-            self._player_move.make_ai_move(self._board.board, self._board_image)
-        else:
-            self._player_move.mouse_button_down(self._board_image)
+        self._player_move.mouse_button_down(self._board_image)
         self.game_won()
 
     def on_render(self) -> None:
