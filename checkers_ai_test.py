@@ -72,9 +72,33 @@ class TestCheckersAi(unittest.TestCase):
         actual_output = set(state_obj.paths)
         self.assertEqual(expected, actual_output)
 
+    def test_valid_move_method_two_moves(self):
+        state = checkers_ai.make_move((1, 4+5j, 5+4j), self.initial_state)
+        state = checkers_ai.make_move((2, 5+2j, 6+3j), state)
+        state = checkers_ai.make_move((1, 5+6j, 4+5j), state)
+        state = checkers_ai.make_move((2, 3+2j, 4+3j), state)
+        state = checkers_ai.make_move((1, 5+4j, 4+3j, 3+2j), state)
+        expected = set([
+            (2, 2+1j, 3+2j, 4+3j),
+            (2, 4+1j, 3+2j, 2+3j)
+        ])
+        self.valid_paths_helper(state, expected, True)
+
+    def test_valid_move_method_two_moves_2(self):
+        state = checkers_ai.make_move((1, 2+5j, 3+4j), self.initial_state)
+        state = checkers_ai.make_move((2, 3+2j, 4+3j), state)
+        state = checkers_ai.make_move((1, 1+6j, 2+5j), state)
+        state = checkers_ai.make_move((2, 5+2j, 6+3j), state)
+        state = checkers_ai.make_move((1, 3+4j, 4+3j, 5+2j), state)
+        expected = set([
+            (2, 6+1j, 5+2j, 4+3j)
+        ])
+        self.valid_paths_helper(state, expected, True)
+
+
     def test_capture_move(self):
         state = checkers_ai.make_move((1, 5j, 1 + 4j), self.initial_state)
-        state = checkers_ai.make_move((2, 3 + 2j, 2 + 3j), state)
+        state = checkers_ai.make_move((2, 3+2j, 2+3j), state)
         expected = set([(1, 1 + 4j, 2 + 3j, 3 + 2j)])
         self.valid_paths_helper(state, expected)
 
@@ -120,9 +144,9 @@ class TestCheckersAi(unittest.TestCase):
         expected = {(3, 1 + 0j, 2 + 1j, 3 + 2j, 4 + 3j, 5 + 4j)}
         self.valid_paths_helper(state, expected)
 
-    def valid_paths_helper(self, state, expected):
+    def valid_paths_helper(self, state, expected, max_player=False):
         state_obj = checkers_ai.State(state, self.borders)
-        state_obj.valid_moves(False)
+        state_obj.valid_moves(max_player)
         actual_output = state_obj.paths
         self.assertEqual(expected, actual_output)
 
