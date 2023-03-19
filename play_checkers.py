@@ -1,5 +1,6 @@
 # to do
 # game logic
+#   possible AI bugs still
 #   Add delay for AI on double captures so it animates the full move
 #   Create new class paths by combining the player/state/board classes
 #   to refactor
