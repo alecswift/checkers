@@ -166,10 +166,10 @@ def make_move(move: Path, state):
             (pos, 0) if pos in opp_pos else (pos, val) for pos, val in state
         )
         remove = set([start_pos, end_pos])
-        removed = tuple((pos, val) for pos, val in state if pos not in remove)
+        removed = tuple((pos, val) for pos, val in removed_opp if pos not in remove)
         if piece <= 2:
             piece = handle_promotion(end_pos.imag, piece)
-        new_state = *removed_opp, (end_pos, piece), (start_pos, 0)
+        new_state = *removed, (end_pos, piece), (start_pos, 0)
     return new_state
 
 
