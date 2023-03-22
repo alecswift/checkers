@@ -46,15 +46,15 @@ class Board:
             if color in piece:
                 captures = 0
                 skips = ()
-                positions = (None, pos)
+                positions = (pos,)
                 move = (piece, positions, skips, captures)
                 self.next_move(move, moves)
         valid_moves = self.prune_moves(moves)
         return valid_moves
 
-    def next_move(self, move: Path, moves: list[Path]) -> None:
+    def next_move(self, move: Path, moves: list[Path], prev_pos=None) -> None:
         piece, positions, skips, captures = move
-        *_, prev_pos, curr_pos = positions
+        *_, curr_pos = positions
         forward_left = Direction.FORWARD_LEFT.move(curr_pos, piece)
         forward_right = Direction.FORWARD_RIGHT.move(curr_pos, piece)
         next_positions = [forward_left, forward_right]
@@ -62,7 +62,7 @@ class Board:
         if Piece.KING not in piece:
             for next_pos in next_positions:
                 next_move = (piece, (*positions, next_pos), skips, captures)
-                self.build_path(next_move, moves)
+                self.build_path(next_move, moves, prev_pos)
         else:
             back_left = Direction.BACK_LEFT.move(curr_pos, piece)
             back_right = Direction.BACK_RIGHT.move(curr_pos, piece)
@@ -71,12 +71,12 @@ class Board:
                 if next_pos == prev_pos:
                     continue
                 next_move = (piece, (*positions, next_pos), skips, captures)
-                self.build_path(next_move, moves)
+                self.build_path(next_move, moves, prev_pos)
 
-    def build_path(self, move: Path, moves: list[Path]) -> None:
+    def build_path(self, move: Path, moves: list[Path], prev_pos) -> None:
         # Check if I really need the piece in the path
         piece, positions, skips, captures = move
-        prev, *rest, curr_pos, next_pos = positions
+        *rest, curr_pos, next_pos = positions
         next_val = self.search_state(next_pos)
         next_val_is_empty = next_val == Piece.EMPTY
         opp_color = Piece.BLACK if Piece.WHITE in piece else Piece.WHITE
@@ -94,10 +94,11 @@ class Board:
             jump = next_pos + move
             jump_val = self.search_state(jump)
             if jump_val == Piece.EMPTY:
-                positions = (prev, *rest, curr_pos, jump)
+                positions = (*rest, curr_pos, jump)
                 skips = (*skips, next_pos)
                 jmp_move = (piece, positions, skips, captures + 1)
-                self.next_move(jmp_move, moves)
+                prev = next_pos
+                self.next_move(jmp_move, moves, prev)
             elif captures:
                 moves.add((piece, (*rest, curr_pos), skips, captures))
 
@@ -130,8 +131,7 @@ class Board:
         for pos, piece in self._board_state:
             if piece != Piece.EMPTY:
                 x_coord, y_coord = int(pos.real), int(pos.imag)
-                val = "black" if piece == Piece.BLACK else "white"
-                board_array[y_coord][x_coord] = val
+                board_array[y_coord][x_coord] = piece
 
         board_str = []
         for num in range(8):
@@ -140,12 +140,16 @@ class Board:
         for idx, row in enumerate(board_array):
             board_str.append(f"{idx} ")
             for val in row:
-                if val is None:
-                    board_str.append("|  ")
-                elif "white" in val:
-                    board_str.append("| w")
-                else:
+                if val == Piece.BLACK:
                     board_str.append("| b")
+                elif val == Piece.WHITE:
+                    board_str.append("| w")
+                elif val == Piece.BLACK_KING:
+                    board_str.append("|bk")
+                elif val == Piece.WHITE_KING:
+                    board_str.append("|wk")
+                else:
+                    board_str.append("|  ")
             board_str.append("|\n")
         return "".join(board_str)
 
