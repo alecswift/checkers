@@ -1,8 +1,9 @@
 from board import Piece
 
 def make_move(move, state):
+    #Change to take one jump at a time except for in the minimax algo
     piece, positions, jumps = move
-    start_pos, end_pos, *_ = positions
+    start_pos, *_, end_pos = positions
     remove = set([start_pos, end_pos])
     removed = tuple((pos, val) for pos, val in state if pos not in remove)
     removed_opp = tuple(
@@ -15,7 +16,7 @@ def make_move(move, state):
 
 
 def handle_promotion(row, piece):
-    promotion_row = 7 if piece == Piece.WHITE else Piece.BLACK
+    promotion_row = 7 if piece == Piece.WHITE else 0
     if promotion_row == row:
         return Piece.BLACK_KING if piece == Piece.BLACK else Piece.WHITE_KING
     return piece
