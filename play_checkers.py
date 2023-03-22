@@ -4,6 +4,7 @@
 #   Add delay for AI on double captures so it animates the full move
 #   Create new class paths by combining the player/state/board classes
 #   to refactor
+#   Add simpler design for playerinput class so it doesn't loop through all paths
 #   add checker layering
 #   add tests: atleast 10
 #   refactor calls of cleanup method
