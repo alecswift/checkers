@@ -20,3 +20,6 @@ def handle_promotion(row, piece):
     if promotion_row == row:
         return Piece.BLACK_KING if piece == Piece.BLACK else Piece.WHITE_KING
     return piece
+
+def game_won(state):
+    """Return if the checkers game has been won from the given board state"""
