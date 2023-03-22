@@ -9,7 +9,7 @@ class TestBoard(unittest.TestCase):
         self.borders = board.init_borders()
         self.b_piece = board.Piece.BLACK
         self.w_piece = board.Piece.WHITE
-        self.b_king = board.Piece.KING
+        self.b_king = board.Piece.BLACK_KING
         self.empty = board.Piece.EMPTY
         self.move = game.make_move
 
