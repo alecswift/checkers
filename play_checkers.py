@@ -108,7 +108,7 @@ class Checkers:
         if not paths:
             self.on_render()
             sleep(2)
-            color = self._player_move.next_player.color
+            color = "black" if self._player_move.next_player == Piece.BLACK else "white"
             win_surface = pygame.image.load(f"graphics/{color}win.png").convert_alpha()
             self._screen.blit(win_surface, (0, 0))
             pygame.display.update()
