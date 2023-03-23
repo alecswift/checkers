@@ -1,4 +1,4 @@
-from Board import init_state, init_borders, State, make_move
+from board import init_state, init_borders, Board, make_move
 
 BoardState = tuple[tuple[complex, int]]
 
@@ -8,7 +8,7 @@ def find_ai_move(board):
     best_move = minimax(curr_state, 5, True, borders)[1]
     return best_move
 
-def minimax(state, depth: int, max_player: bool, borders) -> Path:
+def minimax(state, depth: int, max_player: bool, borders):
     state_obj = State(state, borders)
     state_obj.valid_moves(state)
     game_won = not state_obj.paths

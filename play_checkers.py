@@ -14,9 +14,9 @@ import pygame
 from sys import exit
 from time import sleep
 from typing import Optional
-from board import Board, Piece, BoardDict, Pos
-from checkers_ai import find_ai_move
-from player import Player, Path
+from board import init_state, init_borders, Board, Piece
+# from checkers_ai import find_ai_move
+import game
 
 
 class Checkers:
@@ -43,13 +43,15 @@ class Checkers:
         self._screen = pygame.display.set_mode(self._size)
         self._caption = pygame.display.set_caption("Checkers")
 
-        self._board = Board()
+        board_state = init_state()
+        borders = init_borders()
+        self._board = Board(board_state, borders)
         board_surface = pygame.image.load("graphics/chessboard2.png").convert_alpha()
         self._board_image = BoardImage(board_surface, pygame.sprite.Group())
-        self._board_image.set_checkers(self._board.board)
+        self._board_image.set_checkers(self._board.board_state)
 
-        player_1 = Player("black", self._board)
-        player_2 = Player("white", self._board)
+        player_1 = Piece.BLACK
+        player_2 = Piece.WHITE
         self._player_move = PlayerMove(player_1, player_2)
         self._running = True
 
@@ -58,7 +60,7 @@ class Checkers:
         if event.type == pygame.QUIT:
             self.on_cleanup()
         if event.type == pygame.MOUSEBUTTONUP:
-            self._player_move.mouse_button_up(self._board.board, self._board_image)
+            self._player_move.mouse_button_up(self._board, self._board_image)
             self.on_render()
             
 
@@ -67,10 +69,11 @@ class Checkers:
         Make a checker move if the player right clicks the mouse of a piece
         quit the game if a player won
         """
-        if self._player_move.curr_player.color == "black":
+        """if self._player_move.curr_player == "black":
             self._player_move.mouse_button_down(self._board_image)
         else:
-            self._player_move.make_ai_move(self._board.board, self._board_image)
+            self._player_move.make_ai_move(self._board.board, self._board_image)"""
+        self._player_move.mouse_button_down(self._board_image)
         self.game_won()
 
     def on_render(self) -> None:
@@ -102,7 +105,7 @@ class Checkers:
         Returns whether or not a player has won the game based on the number
         of valid paths of the opponent player
         """
-        paths = self._player_move.curr_player.valid_paths()
+        paths = self._board.find_valid_moves(self._player_move.curr_player)
         if not paths:
             self.on_render()
             sleep(2)
@@ -129,22 +132,24 @@ class BoardImage:
     def surface(self):
         return self._surface
 
-    def set_checkers(self, board: BoardDict) -> None:
+    def set_checkers(self, board) -> None:
         """
         Intialize checker sprites from the positions of the given board
         and add them into a sprite group
         """
-        for pos, piece in board.items():
-            if isinstance(piece, Piece):
-                self._checkers.add(CheckerSprite(pos, piece.color))
+        for pos, piece in board:
+            if piece != Piece.EMPTY:
+                self._checkers.add(CheckerSprite(pos, piece))
 
     def display_board(self, screen) -> None:
         """Display the checkerboard onto the screen"""
         for x_coord, y_coord in product(range(0, 364, 121), range(0, 361, 120)):
             screen.blit(self._surface, (x_coord, y_coord))
 
-    def remove_checker(self, pos: Pos) -> None:
+    def remove_checker(self, pos=None) -> None:
         """Remove the CheckerSprite at the given position from the game"""
+        if pos is None:
+            return
         for checker in self._checkers:
             if checker.pos == pos:
                 checker.kill()
@@ -154,8 +159,9 @@ class BoardImage:
 class CheckerSprite(pygame.sprite.Sprite):
     """Represents a checker sprite"""
 
-    def __init__(self, pos: Pos, color: str):
+    def __init__(self, pos, piece):
         super().__init__()
+        color = "black" if piece == Piece.BLACK else "white"
         image_path = f"graphics/{color}_piece.png"
         screen_pos = convert_to_screen_pos(pos)
         self._pos = pos
@@ -202,7 +208,7 @@ class PlayerMove:
     was a capture on the last move to make these change
     """
 
-    def __init__(self, player_1: Player, player_2: Player):
+    def __init__(self, player_1, player_2):
         self._curr_player = player_1
         self._next_player = player_2
         self._current_checker: Optional[CheckerSprite] = None
@@ -217,11 +223,11 @@ class PlayerMove:
         self._current_checker = checker
 
     @property
-    def curr_player(self) -> Player:
+    def curr_player(self):
         return self._curr_player
 
     @property
-    def next_player(self) -> Player:
+    def next_player(self):
         return self._next_player
 
     def mouse_button_down(self, board_image: BoardImage) -> None:
@@ -240,7 +246,7 @@ class PlayerMove:
                 if checker.rect.collidepoint(mouse_pos) and mouse_pressed:
                     self._current_checker = checker
 
-    def mouse_button_up(self, board: BoardDict, board_image: BoardImage) -> None:
+    def mouse_button_up(self, state_obj, board_image: BoardImage) -> None:
         """
         Places a checker sprite on a new spot if the player selects a valid move.
         Otherwise return the checker sprite to it's original position
@@ -250,50 +256,33 @@ class PlayerMove:
         if self._current_checker is None:
             return
 
-        valid_paths = self.build_valid_paths(board)
-        is_capture_move = len(valid_paths[0]) != 2
-        for path in valid_paths:
-            if is_capture_move:
-                start_pos, opp_pos, end_pos, *_ = path
-            else:
-                start_pos, end_pos = path
-            if self._current_checker.pos != start_pos:
-                continue
-
-            mid_end_pos_square = convert_to_screen_pos(end_pos, 30.25)
-            pos_selected = self._current_checker.rect.collidepoint(mid_end_pos_square)
-            if not is_capture_move and pos_selected:
-                self._curr_player.no_capture_move(start_pos, end_pos)
+        start_pos = self._current_checker.pos
+        moves = game.get_moves_from(self.curr_player, start_pos, state_obj)
+        for move in moves:
+            piece, positions, skip, captures = move
+            _, end_pos = positions
+            screen_end_pos = convert_to_screen_pos(end_pos, 30.25)
+            pos_selected = self._current_checker.rect.collidepoint(screen_end_pos)
+            if pos_selected:
+                move = move[:3]
+                state_obj.board_state = game.make_move(move, state_obj.board_state)
                 self._current_checker.pos = end_pos
-                self.switch_player()
-            if is_capture_move and pos_selected:
-                new_path = self._curr_player.capture_move(path, self._next_player)
-                self._current_checker.pos = end_pos
-                board_image.remove_checker(opp_pos)
-                capture_remaining = 2 < len(new_path)
-                if capture_remaining:
-                    self._capture_last_move = end_pos
+                board_image.remove_checker(*skip)
+                if 1 < captures:
+                # can't select other checkers if greater than 1
+                    pass
                 else:
-                    self._capture_last_move = None
                     self.switch_player()
+
         self._current_checker.update()
         self._current_checker = None
 
-    def build_valid_paths(self, board: BoardDict) -> list[Path]:
-        """Returns a list of valid paths for the current checker"""
-        if self._capture_last_move is not None:
-            paths = []
-            piece = board[self._capture_last_move]
-            self._curr_player.next_move((self._capture_last_move,), paths, piece, False)
-            valid_paths = self._curr_player.prune_paths(paths)
-        else:
-            valid_paths = self._curr_player.valid_paths()
-        return valid_paths
-
-    def make_ai_move(self, board: BoardDict, board_image: BoardImage):
+    """def make_ai_move(self, board, board_image: BoardImage):
         best_move = find_ai_move(board)
         if not best_move:
             return
+        
+
         if len(best_move) == 3:
             _, start_pos, end_pos = best_move
             screen_target = convert_to_screen_pos(start_pos, 30.25)
@@ -317,7 +306,7 @@ class PlayerMove:
                 if idx % 2 == 0:
                     board_image.remove_checker(pos)
         self._current_checker = None
-        self.switch_player()
+        self.switch_player()"""
 
     def switch_player(self) -> None:
         """
@@ -336,6 +325,10 @@ def convert_to_screen_pos(pos: complex, adder: int = 0) -> tuple[int, int]:
     screen_pos = (x_coord * COORD_FACTOR + adder, y_coord * COORD_FACTOR + adder)
     return screen_pos
 
+def convert_to_state_pos(screen_pos: tuple[int, int]):
+    COORD_FACTOR = 60.5
+    x_coord, y_coord = screen_pos[0] // COORD_FACTOR, screen_pos[1] // COORD_FACTOR
+    return complex(x_coord, y_coord)
 
 if __name__ == "__main__":
     checkers = Checkers()

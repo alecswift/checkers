@@ -1,7 +1,6 @@
 from __future__ import annotations
 from enum import Enum, Flag, auto
 from itertools import product
-from typing import Optional
 
 Pos = complex
 Path = tuple[complex, ...]
@@ -39,9 +38,17 @@ class Board:
         self._board_state = board_state
         self._borders = borders
 
-    def find_valid_moves(self, max_player) -> list[Path]:
+    @property
+    def board_state(self):
+        return self._board_state
+
+    @board_state.setter
+    def board_state(self, new_state):
+        self._board_state = new_state
+
+
+    def find_valid_moves(self, color) -> list[Path]:
         moves = set()
-        color = Piece.WHITE if max_player else Piece.BLACK
         for pos, piece in self._board_state:
             if color in piece:
                 captures = 0
