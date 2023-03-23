@@ -96,7 +96,7 @@ class Board:
         # next one could be faulty
         elif captures and (color in next_val or next_val_is_empty):
             moves.add((piece, (*rest, curr_pos), skips, captures))
-        elif isinstance(next_val, Piece) and next_val in opp_color:
+        elif isinstance(next_val, Piece) and opp_color in next_val:
             move = next_pos - curr_pos
             jump = next_pos + move
             jump_val = self.search_state(jump)
