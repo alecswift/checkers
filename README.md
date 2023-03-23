@@ -1,7 +1,7 @@
 <center> <h1>Checkers</h1> </center>
 
 ## About
-I developed a checkers game in python, with pygame for the user interface, to practice object oriented programming and utilize algorithms for a practical purpose. Currently you can play checkers in the terminal or with your favorite IDE. I chose checkers as it's an easily expandable project. I plan to code different levels of AI, deploy the project as an app on the internet, support 1v1 play over a network, create a database to store game results, and use what I've learned to develop a chess game.
+I developed a checkers game in python, with pygame for the user interface, to practice object oriented programming and utilize algorithms for a practical purpose. Currently you can play checkers in the terminal or with your favorite IDE against an intermediate level AI implemented with a minimax algorithm and heuristic functions that evaluate the game state based on the number of captured pieces and the number of king pieces. I chose checkers as it's an easily expandable project. I plan to code more levels of AI, deploy the project as an app on the internet, support 1v1 play over a network, create a database to store game results, and use what I've learned to develop a chess game.
 
 ![](./graphics/capture.gif)
 
