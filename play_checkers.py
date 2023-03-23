@@ -62,7 +62,6 @@ class Checkers:
         if event.type == pygame.MOUSEBUTTONUP:
             self._player_move.mouse_button_up(self._board, self._board_image)
             self.on_render()
-            
 
     def on_loop(self) -> None:
         """
@@ -212,7 +211,7 @@ class PlayerMove:
         self._curr_player = player_1
         self._next_player = player_2
         self._current_checker: Optional[CheckerSprite] = None
-        self._capture_last_move: Optional[complex] = None
+        self._more_captures: Optional[complex] = None
 
     @property
     def current_checker(self) -> Optional[complex]:
@@ -257,9 +256,13 @@ class PlayerMove:
             return
 
         start_pos = self._current_checker.pos
-        moves = game.get_moves_from(self.curr_player, start_pos, state_obj)
+        if self._more_captures is None or self._more_captures == start_pos:
+            moves = game.get_moves_from(self.curr_player, start_pos, state_obj)
+        else:
+            moves = ()
+
         for move in moves:
-            piece, positions, skip, captures = move
+            _, positions, skip, captures = move
             _, end_pos = positions
             screen_end_pos = convert_to_screen_pos(end_pos, 30.25)
             pos_selected = self._current_checker.rect.collidepoint(screen_end_pos)
@@ -269,9 +272,9 @@ class PlayerMove:
                 self._current_checker.pos = end_pos
                 board_image.remove_checker(*skip)
                 if 1 < captures:
-                # can't select other checkers if greater than 1
-                    pass
+                    self._more_captures = end_pos
                 else:
+                    self._more_captures = None
                     self.switch_player()
 
         self._current_checker.update()
