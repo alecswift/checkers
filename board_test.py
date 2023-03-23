@@ -71,14 +71,14 @@ class TestBoard(unittest.TestCase):
                 (self.b_piece, (6 + 5j, 5 + 4j), ()),
                 (self.b_piece, (6 + 5j, 7 + 4j), ()),
         }
-        actual_output = board_obj.find_valid_moves(False)
+        actual_output = board_obj.find_valid_moves(self.b_piece)
         self.assertEqual(expected, actual_output)
 
     def test_valid_move_method_with_one_valid_capture(self):
         state = self.move((self.b_piece, (5j, 1 + 4j), ()), self.initial_state)
         state = self.move((self.w_piece, (3 + 2j, 2 + 3j), ()), state)
         expected = {(self.b_piece, (1 + 4j, 3 + 2j), (2 + 3j,))}
-        self.valid_paths_helper(state, expected)
+        self.valid_paths_helper(state, expected, self.b_piece)
 
     def test_valid_move_method_with_one_valid_capture_2(self):
         state = self.move((self.b_piece, (2 + 5j, 3 + 4j), ()), self.initial_state)
@@ -87,7 +87,7 @@ class TestBoard(unittest.TestCase):
         state = self.move((self.w_piece, (5 + 2j, 6 + 3j), ()), state)
         state = self.move((self.b_piece, (3 + 4j, 5 + 2j), (4 + 3j,)), state)
         expected = {(self.w_piece, (6 + 1j, 4 + 3j), (5 + 2j,))}
-        self.valid_paths_helper(state, expected, True)
+        self.valid_paths_helper(state, expected, self.w_piece)
     
     def test_valid_move_method_with_2_valid_captures(self):
         state = self.move((self.b_piece, (4 + 5j, 5 + 4j), ()), self.initial_state)
@@ -99,7 +99,7 @@ class TestBoard(unittest.TestCase):
                 (self.w_piece, (2 + 1j, 4 + 3j), (3 + 2j,)),
                 (self.w_piece, (4 + 1j, 2 + 3j), (3 + 2j,)),
         }
-        self.valid_paths_helper(state, expected, True)
+        self.valid_paths_helper(state, expected, self.w_piece)
 
     def test_valid_paths_method_with_double_capture(self):
         state = self.move((self.b_piece, (5j, 1 + 4j), ()), self.initial_state)
@@ -109,7 +109,7 @@ class TestBoard(unittest.TestCase):
         state = self.move((self.b_piece, (1 + 6j, 5j), ()), state)
         state = self.move((self.w_piece, (4 + 3j, 3 + 4j), ()), state)
         expected = {(self.b_piece, (2 + 5j, 4 + 3j, 6 + 1j), (3 + 4j, 5 + 2j))}
-        self.valid_paths_helper(state, expected)
+        self.valid_paths_helper(state, expected, self.b_piece)
 
     def test_valid_paths_method_with_double_capture_2(self):
         state = self.move((self.b_piece, (5j, 1 + 4j), ()), self.initial_state)
@@ -121,7 +121,7 @@ class TestBoard(unittest.TestCase):
         state = self.move((self.b_piece, (7j, 1 + 6j), ()), state)
         state = self.move((self.w_piece, (3 + 2j, 2 + 3j), ()), state)
         expected = {(self.b_piece, (1 + 4j, 3 + 2j, 5 + 0j), (2 + 3j,  4 + 1j))}
-        self.valid_paths_helper(state, expected)
+        self.valid_paths_helper(state, expected, self.b_piece)
 
     def test_valid_paths_with_king_double_capture(self):
         state = self.move((self.b_piece, (6 + 5j, 7 + 4j), ()), self.initial_state)
@@ -137,11 +137,11 @@ class TestBoard(unittest.TestCase):
         state = self.move((self.b_piece, (1j, 1 + 0j), ()), state)  # black piece promoted
         state = self.move((self.w_piece, (3 + 2j, 4 + 3j), ()), state)
         expected = {(self.b_king, (1 + 0j, 3 + 2j, 5 + 4j), (2 + 1j, 4 + 3j))}
-        self.valid_paths_helper(state, expected)
+        self.valid_paths_helper(state, expected, self.b_piece)
 
-    def valid_paths_helper(self, state, expected, max_player=False):
+    def valid_paths_helper(self, state, expected, player):
         board_state = board.Board(state, self.borders)
-        actual_output = board_state.find_valid_moves(max_player)
+        actual_output = board_state.find_valid_moves(player)
         self.assertEqual(expected, actual_output)
 
 
