@@ -1,10 +1,7 @@
 # to do
 # game logic
-#   possible AI bugs still
-#   Add delay for AI on double captures so it animates the full move
-#   Create new class paths by combining the player/state/board classes
-#   to refactor
-#   Add simpler design for playerinput class so it doesn't loop through all paths
+#   Still max recursion error for king moves
+#   combine board.py and game.py
 #   add checker layering
 #   add tests: atleast 10
 #   refactor calls of cleanup method
@@ -15,7 +12,7 @@ from sys import exit
 from time import sleep
 from typing import Optional
 from board import init_state, init_borders, Board, Piece
-# from checkers_ai import find_ai_move
+from checkers_ai import find_ai_move
 import game
 
 
@@ -33,6 +30,7 @@ class Checkers:
         self._board_image: Optional[BoardImage] = None
         self._board: Optional[Board] = None
         self._player_move: Optional[PlayerMove] = None
+        self._ai = True
 
     def on_init(self) -> None:
         """
@@ -68,11 +66,14 @@ class Checkers:
         Make a checker move if the player right clicks the mouse of a piece
         quit the game if a player won
         """
-        """if self._player_move.curr_player == "black":
-            self._player_move.mouse_button_down(self._board_image)
+        if self._ai:
+            if self._player_move.curr_player == Piece.BLACK:
+                self._player_move.mouse_button_down(self._board_image)
+            else:
+                self._player_move.make_ai_move(self._board, self._board_image, self._screen)
+
         else:
-            self._player_move.make_ai_move(self._board.board, self._board_image)"""
-        self._player_move.mouse_button_down(self._board_image)
+            self._player_move.mouse_button_down(self._board_image)
         self.game_won()
 
     def on_render(self) -> None:
@@ -280,36 +281,32 @@ class PlayerMove:
         self._current_checker.update()
         self._current_checker = None
 
-    """def make_ai_move(self, board, board_image: BoardImage):
-        best_move = find_ai_move(board)
-        if not best_move:
+    def make_ai_move(self, state_obj, board_image: BoardImage, screen):
+        move = find_ai_move(state_obj.board_state)
+        if not move:
             return
         
 
-        if len(best_move) == 3:
-            _, start_pos, end_pos = best_move
-            screen_target = convert_to_screen_pos(start_pos, 30.25)
-            for checker in board_image.checkers:
-                if checker.rect.collidepoint(screen_target):
-                    self._current_checker = checker
-            self._curr_player.no_capture_move(start_pos, end_pos)
-            self._current_checker.pos = end_pos
+        _, positions, skips = move
+        start_pos, *rest = positions
+        screen_target = convert_to_screen_pos(start_pos, 30.25)
+        for checker in board_image.checkers:
+            if checker.rect.collidepoint(screen_target):
+                self._current_checker = checker
+        for idx, pos in enumerate(rest):
+            sleep(1)
+            if skips:
+                board_image.remove_checker(skips[idx])
+            self._current_checker.pos = pos
             self._current_checker.update()
-        else:
-            _, start_pos, *rest, end_pos = best_move
-            screen_target = convert_to_screen_pos(start_pos, 30.25)
-            for checker in board_image.checkers:
-                if checker.rect.collidepoint(screen_target):
-                    self._current_checker = checker
-            opponent = self._next_player
-            self._curr_player.ai_capture_move((start_pos, *rest, end_pos), opponent)
-            self._current_checker.pos = end_pos
-            self._current_checker.update()
-            for idx, pos in enumerate(rest):
-                if idx % 2 == 0:
-                    board_image.remove_checker(pos)
+            #maybe remove some of below
+            board_image.display_board(screen)
+            board_image.checkers.draw(screen)
+            pygame.display.update()
+
+        state_obj.board_state = game.make_move(move, state_obj.board_state)
         self._current_checker = None
-        self.switch_player()"""
+        self.switch_player()
 
     def switch_player(self) -> None:
         """
