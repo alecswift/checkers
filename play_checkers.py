@@ -11,7 +11,7 @@ import pygame
 from sys import exit
 from time import sleep
 from typing import Optional
-from board import init_state, init_borders, Board, Piece
+from game import init_state, init_borders, Board, Piece
 from checkers_ai import find_ai_move
 import game
 

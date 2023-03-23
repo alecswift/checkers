@@ -1,16 +1,16 @@
 import unittest
-import board
+import game
 import game
 
 
 class TestBoard(unittest.TestCase):
     def setUp(self):
-        self.initial_state = board.init_state()
-        self.borders = board.init_borders()
-        self.b_piece = board.Piece.BLACK
-        self.w_piece = board.Piece.WHITE
-        self.b_king = board.Piece.BLACK_KING
-        self.empty = board.Piece.EMPTY
+        self.initial_state = game.init_state()
+        self.borders = game.init_borders()
+        self.b_piece = game.Piece.BLACK
+        self.w_piece = game.Piece.WHITE
+        self.b_king = game.Piece.BLACK_KING
+        self.empty = game.Piece.EMPTY
         self.move = game.make_move
 
     def tearDown(self):
@@ -61,7 +61,7 @@ class TestBoard(unittest.TestCase):
         self.assertEqual(actual_output, expected)
 
     def test_valid_move_method_with_initial_board_state(self):
-        board_obj = board.Board(self.initial_state, self.borders)
+        board_obj = game.Board(self.initial_state, self.borders)
         expected = {
                 (self.b_piece, (5j, 1 + 4j), ()),
                 (self.b_piece, (2 + 5j, 1 + 4j), ()),
@@ -140,7 +140,7 @@ class TestBoard(unittest.TestCase):
         self.valid_paths_helper(state, expected, self.b_piece)
 
     def valid_paths_helper(self, state, expected, player):
-        board_state = board.Board(state, self.borders)
+        board_state = game.Board(state, self.borders)
         actual_output = board_state.find_valid_moves(player)
         self.assertEqual(expected, actual_output)
 

@@ -1,4 +1,4 @@
-from board import init_borders, Board, Piece
+from game import init_borders, Board, Piece
 from game import make_move
 
 BoardState = tuple[tuple[complex, int]]
