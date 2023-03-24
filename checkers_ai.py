@@ -5,7 +5,7 @@ BoardState = tuple[tuple[complex, int]]
 
 def find_ai_move(curr_state):
     borders = init_borders()
-    best_move = minimax(curr_state, 6, True, borders)[1]
+    best_move = minimax(curr_state, 5, True, borders)[1]
     return best_move
 
 def minimax(state, depth: int, max_player: bool, borders):

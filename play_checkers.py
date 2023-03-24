@@ -1,7 +1,7 @@
 # to do
 # game logic
-#   Still max recursion error for king moves
-#   combine board.py and game.py
+#   Still max recursion error for king moves, can't seem to replicate
+#   Add alpha beta pruning for hard level AI
 #   add checker layering
 #   add tests: atleast 10
 #   refactor calls of cleanup method
