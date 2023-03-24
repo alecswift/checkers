@@ -1,6 +1,7 @@
 # to do
 # game logic
 #   Still max recursion error for king moves, can't seem to replicate
+#   Add docstrings/typehints
 #   Add alpha beta pruning for hard level AI
 #   add checker layering
 #   add tests: atleast 10
@@ -285,7 +286,6 @@ class PlayerMove:
         move = find_ai_move(state_obj.board_state)
         if not move:
             return
-        
 
         _, positions, skips = move
         start_pos, *rest = positions
