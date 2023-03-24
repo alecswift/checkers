@@ -295,7 +295,6 @@ class PlayerMove:
                 board_image.remove_checker(skips[idx])
             self._current_checker.pos = pos
             self._current_checker.update()
-            #maybe remove some of below
             board_image.display_board(screen)
             board_image.checkers.draw(screen)
             pygame.display.update()
