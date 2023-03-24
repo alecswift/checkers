@@ -1,6 +1,6 @@
 # to do
 # game logic
-#   Still max recursion error for king moves, can't seem to replicate
+#   Still max recursion error for random moves can't seem to replicate
 #   Add docstrings/typehints
 #   Add alpha beta pruning for hard level AI
 #   add checker layering
@@ -67,12 +67,8 @@ class Checkers:
         Make a checker move if the player right clicks the mouse of a piece
         quit the game if a player won
         """
-        if self._ai:
-            if self._player_move.curr_player == Piece.BLACK:
-                self._player_move.mouse_button_down(self._board_image)
-            else:
-                self._player_move.make_ai_move(self._board, self._board_image, self._screen)
-
+        if self._ai and self._player_move.curr_player == Piece.WHITE:
+            self._player_move.make_ai_move(self._board, self._board_image, self._screen)
         else:
             self._player_move.mouse_button_down(self._board_image)
         self.game_won()

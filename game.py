@@ -104,19 +104,16 @@ class Board:
         forward_right = Direction.FORWARD_RIGHT.move(curr_pos, piece)
         next_positions = [forward_left, forward_right]
 
-        if Piece.KING not in piece:
-            for next_pos in next_positions:
-                next_move = (piece, (*positions, next_pos), skips, captures)
-                self.build_path(next_move, moves)
-        else:
+        if Piece.KING in piece:
             back_left = Direction.BACK_LEFT.move(curr_pos, piece)
             back_right = Direction.BACK_RIGHT.move(curr_pos, piece)
             next_positions.extend([back_left, back_right])
-            for next_pos in next_positions:
-                if next_pos == prev_pos:
-                    continue
-                next_move = (piece, (*positions, next_pos), skips, captures)
-                self.build_path(next_move, moves)
+
+        for next_pos in next_positions:
+            if next_pos == prev_pos:
+                continue
+            next_move = (piece, (*positions, next_pos), skips, captures)
+            self.build_path(next_move, moves)
 
     def build_path(self, move: Path, moves: list[Path]) -> None:
         # Check if I really need the piece in the path
