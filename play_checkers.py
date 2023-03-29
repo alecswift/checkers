@@ -24,16 +24,16 @@ class Checkers:
     """
 
     def __init__(self):
-        self._running: bool = True
+        self._running = True
         self._screen = None
-        self._size: tuple[int, int] = 484, 484
+        self._size = 484, 484
         self._caption = None
-        self._board_image: Optional[BoardImage] = None
-        self._board: Optional[Board] = None
-        self._player_move: Optional[PlayerMove] = None
+        self._board_image = None
+        self._board = None
+        self._player_move = None
         self._ai = True
 
-    def on_init(self) -> None:
+    def on_init(self):
         """
         Initialize the game and data members including the screen,
         caption, board, board image, player input, and running
@@ -54,18 +54,22 @@ class Checkers:
         self._player_move = PlayerMove(player_1, player_2)
         self._running = True
 
-    def on_event(self, event) -> None:
-        """Event actions for checkers"""
+    def on_event(self, event):
+        """
+        Event actions for checkers quits the user interface if the event type 
+        is quit or completes a humans player checker move if the mouse button
+        goes up
+        """
         if event.type == pygame.QUIT:
             self.on_cleanup()
         if event.type == pygame.MOUSEBUTTONUP:
             self._player_move.mouse_button_up(self._board, self._board_image)
             self.on_render()
 
-    def on_loop(self) -> None:
+    def on_loop(self):
         """
-        Make a checker move if the player right clicks the mouse of a piece
-        quit the game if a player won
+        Make a player move if the player right clicks the mouse of a piece,
+        if the current player is AI make an ai move quit the game if a player won
         """
         if self._ai and self._player_move.curr_player == Piece.WHITE:
             self._player_move.make_ai_move(self._board, self._board_image, self._screen)
@@ -73,19 +77,19 @@ class Checkers:
             self._player_move.mouse_button_down(self._board_image)
         self.game_won()
 
-    def on_render(self) -> None:
+    def on_render(self):
         """Render the game board and checker pieces"""
         self._board_image.display_board(self._screen)
         self._board_image.checkers.draw(self._screen)
         pygame.display.update()
 
-    def on_cleanup(self) -> None:
+    def on_cleanup(self):
         """End the game and quit pygame"""
         pygame.display.quit()
         pygame.quit()
         exit()
 
-    def on_execute(self) -> None:
+    def on_execute(self):
         """Game loop: input, update, render"""
         if self.on_init() == False:
             self._running = False
@@ -97,10 +101,10 @@ class Checkers:
             self.on_render()
         self.on_cleanup()
 
-    def game_won(self) -> bool:
+    def game_won(self):
         """
         Returns whether or not a player has won the game based on the number
-        of valid paths of the opponent player
+        of valid paths of the opponent player and quit the game
         """
         paths = self._board.find_valid_moves(self._player_move.curr_player)
         if not paths:
@@ -129,7 +133,7 @@ class BoardImage:
     def surface(self):
         return self._surface
 
-    def set_checkers(self, board) -> None:
+    def set_checkers(self, board):
         """
         Intialize checker sprites from the positions of the given board
         and add them into a sprite group
@@ -138,12 +142,12 @@ class BoardImage:
             if piece != Piece.EMPTY:
                 self._checkers.add(CheckerSprite(pos, piece))
 
-    def display_board(self, screen) -> None:
+    def display_board(self, screen):
         """Display the checkerboard onto the screen"""
         for x_coord, y_coord in product(range(0, 364, 121), range(0, 361, 120)):
             screen.blit(self._surface, (x_coord, y_coord))
 
-    def remove_checker(self, pos=None) -> None:
+    def remove_checker(self, pos=None):
         """Remove the CheckerSprite at the given position from the game"""
         if pos is None:
             return
@@ -167,11 +171,11 @@ class CheckerSprite(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=(screen_pos))
 
     @property
-    def pos(self) -> complex:
+    def pos(self):
         return self._pos
 
     @pos.setter
-    def pos(self, new_pos: complex) -> None:
+    def pos(self, new_pos):
         self._pos = new_pos
         promotion_row = 0 if self._color == "black" else 7
         curr_row = self._pos.imag
@@ -179,11 +183,11 @@ class CheckerSprite(pygame.sprite.Sprite):
             self.promote()
 
     @property
-    def color(self) -> str:
+    def color(self):
         return self._color
 
     # https://stackoverflow.com/questions/16825645/how-to-make-a-sprite-follow-your-mouse-cursor-using-pygame
-    def update(self) -> None:
+    def update(self):
         """Change the position of the checker based on the piece position data member"""
         self.rect.topleft = convert_to_screen_pos(self._pos)
 
@@ -202,21 +206,21 @@ class PlayerMove:
     """
     Methods for changing positions of checkers based on player input
     utilizes the current player, next player, current checker, and if there
-    was a capture on the last move to make these change
+    was a capture on the last move to make these changes
     """
 
     def __init__(self, player_1, player_2):
         self._curr_player = player_1
         self._next_player = player_2
-        self._current_checker: Optional[CheckerSprite] = None
-        self._more_captures: Optional[complex] = None
+        self._current_checker = None
+        self._more_captures = None
 
     @property
-    def current_checker(self) -> Optional[complex]:
+    def current_checker(self):
         return self._current_checker
 
     @current_checker.setter
-    def current_checker(self, checker: CheckerSprite) -> None:
+    def current_checker(self, checker):
         self._current_checker = checker
 
     @property
@@ -227,7 +231,7 @@ class PlayerMove:
     def next_player(self):
         return self._next_player
 
-    def mouse_button_down(self, board_image: BoardImage) -> None:
+    def mouse_button_down(self, board_image):
         """
         Selects a checker if the player right clicks a checker sprite with
         their mouse and moves it based on the mouse position
@@ -243,13 +247,11 @@ class PlayerMove:
                 if checker.rect.collidepoint(mouse_pos) and mouse_pressed:
                     self._current_checker = checker
 
-    def mouse_button_up(self, state_obj, board_image: BoardImage) -> None:
+    def mouse_button_up(self, state_obj, board_image):
         """
         Places a checker sprite on a new spot if the player selects a valid move.
         Otherwise return the checker sprite to it's original position
         """
-        # Possibly change to finding valid paths for the specific piece that the
-        # player presses on rather than looping through all paths
         if self._current_checker is None:
             return
 
@@ -278,7 +280,9 @@ class PlayerMove:
         self._current_checker.update()
         self._current_checker = None
 
-    def make_ai_move(self, state_obj, board_image: BoardImage, screen):
+    def make_ai_move(self, state_obj, board_image, screen):
+        """Find the best move based on the board state, then make that
+        move and update the game state"""
         move = find_ai_move(state_obj.board_state)
         if not move:
             return
@@ -303,14 +307,14 @@ class PlayerMove:
         self._current_checker = None
         self.switch_player()
 
-    def switch_player(self) -> None:
+    def switch_player(self):
         """
         Represents a change in turn. Switches the current player with the next player
         """
         self._curr_player, self._next_player = self._next_player, self._curr_player
 
 
-def convert_to_screen_pos(pos: complex, adder: int = 0) -> tuple[int, int]:
+def convert_to_screen_pos(pos, adder = 0):
     """
     Converts a board pos of a checker represented by complex numbers with
     rows and columns 0-7 to a screen position
@@ -320,7 +324,8 @@ def convert_to_screen_pos(pos: complex, adder: int = 0) -> tuple[int, int]:
     screen_pos = (x_coord * COORD_FACTOR + adder, y_coord * COORD_FACTOR + adder)
     return screen_pos
 
-def convert_to_state_pos(screen_pos: tuple[int, int]):
+def convert_to_state_pos(screen_pos):
+    """Converts the given screen pos to an internal board state position"""
     COORD_FACTOR = 60.5
     x_coord, y_coord = screen_pos[0] // COORD_FACTOR, screen_pos[1] // COORD_FACTOR
     return complex(x_coord, y_coord)

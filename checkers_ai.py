@@ -1,14 +1,17 @@
 from game import init_borders, Board, Piece
 from game import make_move
 
-BoardState = tuple[tuple[complex, int]]
-
 def find_ai_move(curr_state):
+    """Returns the best move found from a call to the minimax algorithm"""
     borders = init_borders()
     best_move = minimax(curr_state, 5, True, borders)[1]
     return best_move
 
-def minimax(state, depth: int, max_player: bool, borders):
+def minimax(state, depth, max_player, borders):
+    """
+    Returns the best move found from a given state, depth of the search tree,
+    and player
+    """
     color = Piece.WHITE if max_player else Piece.BLACK
     state_obj = Board(state, borders)
     moves = state_obj.find_valid_moves(color)
@@ -37,7 +40,11 @@ def minimax(state, depth: int, max_player: bool, borders):
         return min_eval, best_move
 
 
-def evaluate(state) -> int:
+def evaluate(state):
+    """
+    heuristic function that evaluates the game state based on the
+    number of captured pieces and the number of king pieces.
+    """
     count_white = 0
     count_black = 0
     count_white_kings = 0

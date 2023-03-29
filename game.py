@@ -2,13 +2,8 @@ from __future__ import annotations
 from enum import Enum, Flag, auto
 from itertools import product
 
-Pos = complex
-Path = tuple[complex, ...]
-BoardState = tuple[tuple[complex, int]]
-
-
-
 def get_moves_from(color, start_pos, state_obj):
+    """Return the possible moves from a given starting piece and board state"""
     moves = []
     for piece, positions, skips in state_obj.find_valid_moves(color):
         curr_start, curr_end, *_ = positions
@@ -20,7 +15,7 @@ def get_moves_from(color, start_pos, state_obj):
     return moves
 
 def make_move(move, state):
-    #Change to take one jump at a time except for in the minimax algo
+    """Return the new board state from the given move and board state"""
     piece, positions, skips = move
     start_pos, *_, end_pos = positions
     remove = set([start_pos, end_pos])
@@ -35,17 +30,16 @@ def make_move(move, state):
 
 
 def handle_promotion(row, piece):
+    """
+    Promote a piece to king if it lands on the row opposite from the pieces starting side
+    """
     promotion_row = 7 if piece == Piece.WHITE else 0
     if promotion_row == row:
         return Piece.BLACK_KING if piece == Piece.BLACK else Piece.WHITE_KING
     return piece
 
-def game_won(state):
-    """Return if the checkers game has been won from the given board state"""
-
-
-
-def init_state() -> BoardState:
+def init_state():
+    """Return the initial board state for a game of checkers"""
     state = []
     for x_coord, y_coord in product(range(8), range(8)):
         pos = complex(x_coord, y_coord)
@@ -72,6 +66,11 @@ def init_borders():
 
 
 class Board:
+    """
+    Represents a checker board with a board state, borders
+    contains methods for finding all valid moves for the 
+    current board state
+    """
     def __init__(self, board_state, borders):
         self._board_state = board_state
         self._borders = borders
@@ -85,7 +84,11 @@ class Board:
         self._board_state = new_state
 
 
-    def find_valid_moves(self, color) -> list[Path]:
+    def find_valid_moves(self, color):
+        """
+        Returns a list of valid moves for the given piece color and 
+        the current board state
+        """
         moves = set()
         for pos, piece in self._board_state:
             if color in piece:
@@ -97,7 +100,11 @@ class Board:
         valid_moves = self.prune_moves(moves)
         return valid_moves
 
-    def next_move(self, move: Path, moves: list[Path], prev_pos=None) -> None:
+    def next_move(self, move, moves, prev_pos=None):
+        """
+        Finds the next possible squares for a given move and calls
+        the build path method for that next square
+        """
         piece, positions, skips, captures = move
         *_, curr_pos = positions
         forward_left = Direction.FORWARD_LEFT.move(curr_pos, piece)
@@ -115,8 +122,17 @@ class Board:
             next_move = (piece, (*positions, next_pos), skips, captures)
             self.build_path(next_move, moves)
 
-    def build_path(self, move: Path, moves: list[Path]) -> None:
-        # Check if I really need the piece in the path
+    def build_path(self, move, moves):
+        """Either discard the move if it's invalid, add the move to the moves list
+        if it's valid, or call the next move method if current path includes a 
+        valid jump.
+
+        cases for valid paths:
+        It's the first move (not capture) and the next space is empty.
+        Or anytime after a capture move where the next space is not an
+        opponent piece. If the next space is an opponents piece trigger
+        a recursive call if the space the piece would jump to is empty.
+        """
         piece, positions, skips, captures = move
         *rest, curr_pos, next_pos = positions
         next_val = self.search_state(next_pos)
@@ -128,7 +144,6 @@ class Board:
             moves.add((piece, (*rest, curr_pos, next_pos), skips, captures))
         elif captures and next_val is None:
             moves.add((piece, (*rest, curr_pos), skips, captures))
-        # next one could be faulty
         elif captures and (color in next_val or next_val_is_empty):
             moves.add((piece, (*rest, curr_pos), skips, captures))
         elif isinstance(next_val, Piece) and opp_color in next_val:
@@ -145,6 +160,7 @@ class Board:
                 moves.add((piece, (*rest, curr_pos), skips, captures))
 
     def search_state(self, next_pos):
+        """Return the val in the given position in the current board state"""
         for pos, val in self._board_state:
             if pos == next_pos:
                 next_val = val
@@ -153,7 +169,7 @@ class Board:
             next_val = None
         return next_val
 
-    def prune_moves(self, moves) -> list[Path]:
+    def prune_moves(self, moves):
         """
         Removes all invalid moves from the given moves list. A path is invalid if
         there is another path in the list with more captures
@@ -167,7 +183,7 @@ class Board:
             )
         return moves
 
-    def __str__(self) -> str:
+    def __str__(self):
         """Returns the string version of the checker board for debugging"""
         board_array = [[None] * 8 for _ in range(8)]
         for pos, piece in self._board_state:
@@ -219,7 +235,7 @@ class Direction(Enum):
     BACK_LEFT = (-1 + 1j, 1 - 1j)
     BACK_RIGHT = (1 + 1j, -1 - 1j)
 
-    def move(self, pos: Pos, piece: Piece) -> complex:
+    def move(self, pos, piece):
         """Move a checker piece of a given position and color"""
         # Possibly better way to interconnect piece and direction?
         idx = 0 if Piece.BLACK in piece else 1
