@@ -9,7 +9,7 @@
 
 from itertools import product
 import pygame
-from sys import exit
+from sys import exit, setrecursionlimit
 from time import sleep
 from typing import Optional
 from game import init_state, init_borders, Board, Piece
@@ -331,5 +331,6 @@ def convert_to_state_pos(screen_pos):
     return complex(x_coord, y_coord)
 
 if __name__ == "__main__":
+    setrecursionlimit(2000)
     checkers = Checkers()
     checkers.on_execute()
