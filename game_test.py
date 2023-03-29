@@ -139,6 +139,49 @@ class TestBoard(unittest.TestCase):
         expected = {(self.b_king, (1 + 0j, 3 + 2j, 5 + 4j), (2 + 1j, 4 + 3j))}
         self.valid_paths_helper(state, expected, self.b_piece)
 
+    def test_valid_paths_white_mid_game_state(self):
+        state = {
+            (1 + 0j, self.empty,),
+            (3 + 0j, self.w_piece,),
+            (5 + 0j, self.empty,),
+            (7 + 0j, self.w_piece,),
+            (0 + 1j, self.empty,),
+            (2 + 1j, self.empty,),
+            (4 + 1j, self.w_piece,),
+            (6 + 1j, self.w_piece,),
+            (1 + 2j, self.w_piece,),
+            (3 + 2j, self.w_piece,),
+            (5 + 2j, self.w_piece,),
+            (7 + 2j, self.w_piece,),
+            (0 + 5j, self.b_piece,),
+            (2 + 5j, self.b_piece,),
+            (4 + 5j, self.b_piece,),
+            (6 + 5j, self.empty,),
+            (1 + 6j, self.b_piece,),
+            (3 + 6j, self.b_piece,),
+            (5 + 6j, self.b_piece,),
+            (7 + 6j, self.empty,),
+            (0 + 7j, self.empty,),
+            (2 + 7j, self.b_piece,),
+            (4 + 7j, self.empty,),
+            (6 + 7j, self.b_piece,),
+            (0 + 3j, self.w_piece,),
+            (2 + 3j, self.w_piece,),
+            (4 + 3j, self.empty,),
+            (6 + 3j, self.w_piece,),
+            (1 + 4j, self.b_piece,),
+            (3 + 4j, self.empty,),
+            (5 + 4j, self.b_piece,),
+            (7 + 4j, self.b_piece,),
+        }
+        expected = {
+            (self.w_piece, (3+0j, 2+1j), ()),
+            (self.w_piece, (3+2j, 4+3j), ()),
+            (self.w_piece, (5+2j, 4+3j), ()),
+            (self.w_piece, (2+3j, 3+4j), ()),
+        }
+        self.valid_paths_helper(state, expected, self.w_piece)
+
     def valid_paths_helper(self, state, expected, player):
         board_state = game.Board(state, self.borders)
         actual_output = board_state.find_valid_moves(player)
