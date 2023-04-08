@@ -17,7 +17,7 @@ def minimax(state, depth, max_player, borders):
     moves = state_obj.find_valid_moves(color)
     game_won = not moves
     if depth == 0 or game_won:
-        return evaluate(state), ()  # return move as well?
+        return evaluate(state), ()
 
     best_move = None
     if max_player:
