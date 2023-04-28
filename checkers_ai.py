@@ -4,10 +4,10 @@ from game import make_move
 def find_ai_move(curr_state):
     """Returns the best move found from a call to the minimax algorithm"""
     borders = init_borders()
-    best_move = minimax(curr_state, 5, True, borders)[1]
+    best_move = minimax(curr_state, 6, True, borders)[1]
     return best_move
 
-def minimax(state, depth, max_player, borders):
+def minimax(state, depth, max_player, borders, alpha=float("-inf"), beta=float("inf")):
     """
     Returns the best move found from a given state, depth of the search tree,
     and player
@@ -26,8 +26,12 @@ def minimax(state, depth, max_player, borders):
             next_state = make_move(move, state)
             curr_eval = minimax(next_state, depth - 1, False, borders)[0]
             max_eval = max(max_eval, curr_eval)
+            alpha = max(alpha, curr_eval)
+            if beta <= alpha:
+                break
             if max_eval == curr_eval:
                 best_move = move
+
         return max_eval, best_move
     else:
         min_eval = float("inf")
@@ -35,8 +39,12 @@ def minimax(state, depth, max_player, borders):
             next_state = make_move(move, state)
             curr_eval = minimax(next_state, depth - 1, True, borders)[0]
             min_eval = min(min_eval, curr_eval)
+            beta = min(beta, curr_eval)
+            if beta <= alpha:
+                break
             if min_eval == curr_eval:
                 best_move = move
+
         return min_eval, best_move
 
 
